@@ -14,6 +14,13 @@ This library is built with [egui](https://docs.rs/egui/) and can be run as a wid
 
 If you only require a part of the application, you can also include only the views that you require for your application.
 
+## Road Map
+
+- [ ] Improve UX
+- [ ] Upload to crates.io
+- [ ] Enhance the Theme Previewer to move away from the using the Demo widget gallery
+- [ ] Theme inspector
+- [ ] Small list of selected default themes
 ## Contributions
 
 Contributions to should be made in the form of GitHub pull requests. I will be happy to review and include any additional changes that make sense for the project.

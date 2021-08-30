@@ -1,0 +1,218 @@
+//! This is modified from the widget gallery code available at the [egui repository](https://github.com/emilk/egui/blob/master/egui_demo_lib/src/apps/demo/widget_gallery.rs)
+use eframe::egui as egui;
+use egui::{Widget, TextStyle};
+
+#[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
+enum Enum {
+    First,
+    Second,
+    Third,
+}
+
+/// Shows off one example of each major type of widget.
+#[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
+pub struct WidgetGallery {
+    enabled: bool,
+    visible: bool,
+    boolean: bool,
+    radio: Enum,
+    scalar: f32,
+    string: String,
+    color: egui::Color32,
+    animate_progress_bar: bool,
+}
+
+impl Default for WidgetGallery {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            visible: true,
+            boolean: false,
+            radio: Enum::First,
+            scalar: 42.0,
+            string: Default::default(),
+            color: egui::Color32::LIGHT_BLUE.linear_multiply(0.5),
+            animate_progress_bar: false,
+        }
+    }
+}
+
+impl WidgetGallery {
+    pub fn ui(&mut self, ui: &mut egui::Ui) {
+        ui.scope(|ui| {
+            ui.set_visible(self.visible);
+            ui.set_enabled(self.enabled);
+    
+            egui::Grid::new("my_grid")
+                .num_columns(2)
+                .spacing([40.0, 4.0])
+                .striped(true)
+                .show(ui, |ui| {
+                    self.gallery_grid_contents(ui);
+                });
+        });
+    
+        ui.separator();
+    
+        ui.horizontal(|ui| {
+            ui.checkbox(&mut self.visible, "Visible")
+                .on_hover_text("Uncheck to hide all the widgets.");
+            if self.visible {
+                ui.checkbox(&mut self.enabled, "Interactive")
+                    .on_hover_text("Uncheck to inspect how the widgets look when disabled.");
+            }
+        });
+    
+    }
+    fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
+        let Self {
+            enabled: _,
+            visible: _,
+            boolean,
+            radio,
+            scalar,
+            string,
+            color,
+            animate_progress_bar,
+        } = self;
+
+        ui.label("Label");
+        ui.label("Welcome to the widget gallery!");
+        ui.end_row();
+        egui::widgets::Label::new("Monospace Label").ui(ui);
+        egui::widgets::Label::new("This is using the Monospace TextStyle").text_style(TextStyle::Monospace).ui(ui);
+        ui.end_row();
+        egui::widgets::Label::new("Small Label").ui(ui);
+        egui::widgets::Label::new("This is using the Small TextStyle").text_style(TextStyle::Small).ui(ui);
+        ui.end_row();
+        egui::widgets::Label::new("Body Label").ui(ui);
+        egui::widgets::Label::new("This is using the Body TextStyle").text_style(TextStyle::Body).ui(ui);
+        ui.end_row();
+        egui::widgets::Label::new("Heading Label").ui(ui);
+        egui::widgets::Label::new("This is using the Heading TextStyle").text_style(TextStyle::Heading).ui(ui);
+        ui.end_row();
+        egui::widgets::Label::new("Button Label").ui(ui);
+        egui::widgets::Label::new("This is using the Button TextStyle").text_style(TextStyle::Button).ui(ui);
+        ui.end_row();
+        ui.label("Hyperlink");
+        use egui::special_emojis::GITHUB;
+        ui.hyperlink_to(
+            format!("{} egui home page", GITHUB),
+            "https://github.com/emilk/egui",
+        );
+        ui.end_row();
+
+        ui.label("TextEdit");
+        ui.add(egui::TextEdit::singleline(string).hint_text("Write something here"));
+        ui.end_row();
+
+        ui.label("Button");
+        if ui.button("Click me!").clicked() {
+            *boolean = !*boolean;
+        }
+        ui.end_row();
+
+        ui.label("Checkbox");
+        ui.checkbox(boolean, "Checkbox");
+        ui.end_row();
+
+        ui.label("RadioButton");
+        ui.horizontal(|ui| {
+            ui.radio_value(radio, Enum::First, "First");
+            ui.radio_value(radio, Enum::Second, "Second");
+            ui.radio_value(radio, Enum::Third, "Third");
+        });
+        ui.end_row();
+
+        ui.label("SelectableLabel");
+        ui.horizontal(|ui| {
+            ui.selectable_value(radio, Enum::First, "First");
+            ui.selectable_value(radio, Enum::Second, "Second");
+            ui.selectable_value(radio, Enum::Third, "Third");
+        });
+        ui.end_row();
+
+        ui.label("ComboBox");
+
+        egui::ComboBox::from_label("Take your pick")
+            .selected_text(format!("{:?}", radio))
+            .show_ui(ui, |ui| {
+                ui.selectable_value(radio, Enum::First, "First");
+                ui.selectable_value(radio, Enum::Second, "Second");
+                ui.selectable_value(radio, Enum::Third, "Third");
+            });
+        ui.end_row();
+
+        ui.label("Slider");
+        ui.add(egui::Slider::new(scalar, 0.0..=360.0).suffix("°"));
+        ui.end_row();
+
+        ui.label("DragValue");
+        ui.add(egui::DragValue::new(scalar).speed(1.0));
+        ui.end_row();
+
+        ui.label("ProgressBar");
+        let progress = *scalar / 360.0;
+        let progress_bar = egui::ProgressBar::new(progress)
+            .show_percentage()
+            .animate(*animate_progress_bar);
+        *animate_progress_bar = ui
+            .add(progress_bar)
+            .on_hover_text("The progress bar can be animated!")
+            .hovered();
+        ui.end_row();
+
+        ui.label("Color");
+        ui.color_edit_button_srgba(color);
+        ui.end_row();
+
+        ui.label("Image");
+        ui.image(egui::TextureId::Egui, [24.0, 16.0])
+            .on_hover_text("The egui font texture was the convenient choice to show here.");
+        ui.end_row();
+
+        ui.label("ImageButton");
+        if ui
+            .add(egui::ImageButton::new(egui::TextureId::Egui, [24.0, 16.0]))
+            .on_hover_text("The egui font texture was the convenient choice to show here.")
+            .clicked()
+        {
+            *boolean = !*boolean;
+        }
+        ui.end_row();
+
+        ui.label("Separator");
+        ui.separator();
+        ui.end_row();
+
+        ui.label("CollapsingHeader");
+        ui.collapsing("Click to see what is hidden!", |ui| {
+            ui.horizontal_wrapped(|ui| {
+                ui.label(
+                    "Not much, as it turns out - but here is a gold star for you for checking:",
+                );
+                ui.colored_label(egui::Color32::GOLD, "☆");
+            });
+        });
+        ui.end_row();
+
+        ui.label("Plot");
+        ui.add(example_plot());
+        ui.end_row();
+    }
+}
+
+fn example_plot() -> egui::plot::Plot {
+    use egui::plot::{Line, Plot, Value, Values};
+    let n = 128;
+    let line = Line::new(Values::from_values_iter((0..=n).map(|i| {
+        use std::f64::consts::TAU;
+        let x = egui::remap(i as f64, 0.0..=(n as f64), -TAU..=TAU);
+        Value::new(x, x.sin())
+    })));
+    Plot::new("example_plot")
+        .line(line)
+        .height(32.0)
+        .data_aspect(1.0)
+}

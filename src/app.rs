@@ -51,21 +51,37 @@ impl epi::App for StylerApp {
         // For inspiration and more examples, go to https://emilk.github.io/egui
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            // The top panel is often a good place for a menu bar:
-            egui::menu::bar(ui, |ui| {
-                egui::menu::menu(ui, "File", |ui| {
-                    if ui.button("Save").clicked() {
-                        // Option some kind of model to load the file
-                    }
-                    if ui.button("Load").clicked() {
-                        // Option do some sort of file browser magic here.
-                    }
-                    if ui.button("Quit").clicked() {
-                        frame.quit();
-                    }
+                // The top panel is often a good place for a menu bar:
+                egui::menu::bar(ui, |ui| {
+                    egui::menu::menu(ui, "File", |ui| {
+                        if ui.button("Save").clicked() {
+                            // Option some kind of model to load the file
+                            
+                        }
+                        if ui.button("Load").clicked() {
+                            // Option do some sort of file browser magic here.
+
+                        }
+                        if ui.button("Quit").clicked() {
+                            frame.quit();
+                        }
+                    });
+                    egui::menu::menu(ui, "Options", |ui| {
+                        if ui.button("Set current theme as app theme").clicked() {
+                            let theme = self.state.export_theme();
+                            let (style, font_definitions) = theme.extract();
+                            ctx.set_style(style);
+                            ctx.set_fonts(font_definitions);
+                        }
+                        if ui.button("Clear settings").clicked() {
+                            self.state = StylerState::default();
+                        }
+                        if ui.button("Reset App Theme Theme").clicked() {
+                            ctx.set_style(egui::Style::default());
+                        }
+                    });
                 });
             });
-        });
         
         egui::CentralPanel::default().show(ctx, |ui| {
             self.state.ui(ui)
