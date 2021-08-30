@@ -3,11 +3,15 @@ use serde::{Serialize, Deserialize};
 use eframe::egui::{FontDefinitions, ScrollArea, Style, Ui};
 mod colors;
 mod fonts;
+mod shape;
 mod spacing;
 
 pub use colors::colors_view;
 pub use fonts::fonts_view;
+pub use shape::shape_view;
 pub use spacing::spacing_view;
+
+use self::fonts::FontViewState;
 
 #[derive(PartialEq, Serialize, Deserialize, Clone, Copy)]
 enum StylerTab {
@@ -19,6 +23,8 @@ pub struct StylerState {
     current_tab: StylerTab,
     style: Style,
     font_definitions: FontDefinitions,
+    #[cfg_attr(feature = "persistence", serde(skip))]
+    font_view_state: FontViewState,
 }
 
 impl StylerState {
@@ -27,6 +33,7 @@ impl StylerState {
             current_tab: StylerTab::Colors,
             style: Style::default(),
             font_definitions: FontDefinitions::default(),
+            font_view_state: FontViewState::default(),
         }
     }
     fn tab_menu_ui(&mut self, ui: &mut Ui) {
@@ -54,7 +61,7 @@ impl StylerState {
             // Show the content views.
             match self.current_tab {
                 StylerTab::Colors => colors_view(&mut self.style, ui),
-                StylerTab::Fonts => fonts_view(&mut self.font_definitions, ui),
+                StylerTab::Fonts => fonts_view(&mut self.font_view_state, &mut self.font_definitions,  ui),
                 StylerTab::Spacing => spacing_view(&mut self.style, ui),
             }
         });

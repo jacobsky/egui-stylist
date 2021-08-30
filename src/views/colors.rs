@@ -1,99 +1,82 @@
-use eframe::egui::{Style, Ui, Grid, widgets, Color32, Response};
-
-// TODO: Use this to differentiate
-// pub enum ColorEditType {
-//     RGB, HSV, RGBA, SRGBA
-// }
+use eframe::egui::{CollapsingHeader, Color32, Grid, Style, Ui};
 
 /// Displays and modifies the style information related to color for the application.
 pub fn colors_view(style: &mut Style, ui: &mut Ui) {
     ui.heading("Color Settings");
-    // macro_rules! color_grid_for_settings
     /// This is a convenience macro for building out this specific table structure without the additional boilerplate.
-    macro_rules! add_color_grid_rows {
+    macro_rules! color_grid {
         ($ui:expr, $($label_color:expr),*) => {
-            $ui.label("Property");
-            $ui.label("Color Picker");
-            $ui.label("Html Color Value");
-            $ui.end_row();
-            $(
-                $ui.label($label_color.0);
-                $ui.color_edit_button_srgba($label_color.1);
-                let mut html_color = color_to_html(&$label_color.1);
-                let response = $ui.text_edit_singleline(&mut html_color);
-                if response.changed() || response.lost_focus() {
-                    if let Some(color) = html_to_color(html_color.as_str()) {
-                        *$label_color.1 = color;
-                    } 
-                }
-                $ui.end_row();
-            )*
+            Grid::new("_properties").num_columns(3).min_col_width(120.0).max_col_width(120.0).show($ui, |ui|{
+                ui.label("Property");
+                ui.label("Color Picker");
+                ui.label("Html Color Value");
+                ui.end_row();
+                $(
+                    ui.label($label_color.0);
+                    ui.color_edit_button_srgba($label_color.1);
+                    let mut html_color = color_to_html(&$label_color.1);
+                    let response = ui.text_edit_singleline(&mut html_color);
+                    if response.changed() || response.lost_focus() {
+                        if let Some(color) = html_to_color(html_color.as_str()) {
+                            *$label_color.1 = color;
+                        } 
+                    }
+                    ui.end_row();
+                )*
+            });
         }
     }
     Grid::new("color_settings").num_columns(3).show(ui, | ui |{
-        ui.heading("General Color Settings");
-        
-        ui.end_row();
-        // ui.label("test color");
-        // ui.color_edit_button_srgba(&mut style.visuals.extreme_bg_color);
-        // let mut html_color = color_to_html(&style.visuals.extreme_bg_color);
-        // let response = ui.text_edit_singleline(&mut html_color);
-        // if response.changed() || response.lost_focus() {
-        //     if let Some(color) = html_to_color(html_color.as_str()) {
-        //         style.visuals.extreme_bg_color = color;
-        //     } 
-        // }
-        // ui.end_row();
-        add_color_grid_rows!(ui,
-            ("Background Faint", &mut style.visuals.faint_bg_color),
-            ("Background Extreme", &mut style.visuals.extreme_bg_color),
-            ("Background Code", &mut style.visuals.code_bg_color),
-            // ("Text Override (defaults to Window Text color)", &mut style.visuals.override_text_color)
-            ("Selection Background", &mut style.visuals.selection.bg_fill),
-            ("Selection Text", &mut style.visuals.selection.stroke.color),
-            ("Hyperlink Color", &mut style.visuals.hyperlink_color)
-        );
-        ui.heading("Window and non-interactive widget Settings");
-        ui.end_row();
-        add_color_grid_rows!(ui,
-            ("Window Fill", &mut style.visuals.widgets.noninteractive.bg_fill),
-            ("Window Text", &mut style.visuals.widgets.noninteractive.fg_stroke.color),
-            ("Window Outline", &mut style.visuals.widgets.noninteractive.bg_stroke.color),
-            ("Window Shadow", &mut style.visuals.window_shadow.color)
-        );
-        
-        ui.heading("Inactive Interactive Widget Settings");
-        ui.end_row();
-        add_color_grid_rows!(ui,
-            ("Fill", &mut style.visuals.widgets.inactive.bg_fill),
-            ("Text", &mut style.visuals.widgets.inactive.fg_stroke.color),
-            ("Outline", &mut style.visuals.widgets.inactive.bg_stroke.color)
-        );
-        ui.heading("Hovered Interactive Widget Settings");
-        ui.end_row();
-        add_color_grid_rows!(ui,
-            ("Fill", &mut style.visuals.widgets.hovered.bg_fill),
-            ("Text", &mut style.visuals.widgets.hovered.fg_stroke.color),
-            ("Outline", &mut style.visuals.widgets.hovered.bg_stroke.color)
-        );
-        ui.heading("Active Interactive Widget Settings");
-        ui.end_row();
-        add_color_grid_rows!(ui,
-            ("Fill", &mut style.visuals.widgets.active.bg_fill),
-            ("Text", &mut style.visuals.widgets.active.fg_stroke.color),
-            ("Outline", &mut style.visuals.widgets.active.bg_stroke.color)
-        );
-        ui.heading("Open Menu Widget Settings");
-        ui.end_row();
-        add_color_grid_rows!(ui,
-            ("Fill", &mut style.visuals.widgets.open.bg_fill),
-            ("Text", &mut style.visuals.widgets.open.fg_stroke.color),
-            ("Outline", &mut style.visuals.widgets.open.bg_stroke.color)
-        );
-
-
-
-        // TODO: Add more here
+        ui.vertical_centered(|ui|{
+            CollapsingHeader::new("General Color Settings").default_open(true).show(ui, |ui| {
+                color_grid!(ui,
+                    ("Background Faint", &mut style.visuals.faint_bg_color),
+                    ("Background Extreme", &mut style.visuals.extreme_bg_color),
+                    ("Background Code", &mut style.visuals.code_bg_color),
+                    // ("Text Override (defaults to Window Text color)", &mut style.visuals.override_text_color)
+                    ("Selection Background", &mut style.visuals.selection.bg_fill),
+                    ("Selection Text", &mut style.visuals.selection.stroke.color),
+                    ("Hyperlink Color", &mut style.visuals.hyperlink_color)
+                );
+            });
+            CollapsingHeader::new("Window and non-interactive widget Settings").default_open(true).show(ui, |ui| {
+                color_grid!(ui,
+                    ("Window Fill", &mut style.visuals.widgets.noninteractive.bg_fill),
+                    ("Window Text", &mut style.visuals.widgets.noninteractive.fg_stroke.color),
+                    ("Window Outline", &mut style.visuals.widgets.noninteractive.bg_stroke.color),
+                    ("Window Shadow", &mut style.visuals.window_shadow.color)
+                );
+            });
+            
+            CollapsingHeader::new("Inactive Interactive Widget Settings").default_open(true).show(ui, |ui| {
+                color_grid!(ui,
+                    ("Fill", &mut style.visuals.widgets.inactive.bg_fill),
+                    ("Text", &mut style.visuals.widgets.inactive.fg_stroke.color),
+                    ("Outline", &mut style.visuals.widgets.inactive.bg_stroke.color)
+                );
+            });
+            CollapsingHeader::new("Hovered Interactive Widget Settings").default_open(true).show(ui, |ui| {
+                color_grid!(ui,
+                    ("Fill", &mut style.visuals.widgets.hovered.bg_fill),
+                    ("Text", &mut style.visuals.widgets.hovered.fg_stroke.color),
+                    ("Outline", &mut style.visuals.widgets.hovered.bg_stroke.color)
+                );
+            });
+            CollapsingHeader::new("Active Interactive Widget Settings").default_open(true).show(ui, |ui| {
+                color_grid!(ui,
+                    ("Fill", &mut style.visuals.widgets.active.bg_fill),
+                    ("Text", &mut style.visuals.widgets.active.fg_stroke.color),
+                    ("Outline", &mut style.visuals.widgets.active.bg_stroke.color)
+                );
+            });
+            CollapsingHeader::new("Open Menu Widget Settings").default_open(true).show(ui, |ui| {
+                color_grid!(ui,
+                    ("Fill", &mut style.visuals.widgets.open.bg_fill),
+                    ("Text", &mut style.visuals.widgets.open.fg_stroke.color),
+                    ("Outline", &mut style.visuals.widgets.open.bg_stroke.color)
+                );
+            });
+        });
     });
 }
 
