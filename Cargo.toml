@@ -8,6 +8,7 @@ edition = "2018"
 [[bin]]
 name = "egui-stylist-native"
 path = "src/main.rs"
+# required-features = ["native", "persistence"]
 
 [lib]
 name = "egui_stylist"
@@ -15,12 +16,16 @@ path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-eframe = "0.14.0" # Gives us egui, epi and web+native backends
-
+# Gives us egui, epi and web+native backends
+eframe = "0.14.0" 
+# For OS File Dialogs 
+rfd = { version = "0.4.3" }
+ron = "0.6.4"
 serde = { version = "1", features = ["derive"], optional = true }
 
 [features]
 default = ["persistence"]
+# native = ["rfd"]
 http = ["eframe/http"] # Enable if you want to do http requests
 persistence = ["eframe/persistence", "serde"] # Enable if you want to persist app state on shutdown
 

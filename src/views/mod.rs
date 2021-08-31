@@ -72,16 +72,30 @@ impl StylerState {
         // Menu tabs
         ui.horizontal(|ui|{
             if ui.add(SelectableLabel::new(self.current_tab == StylerTab::Colors, "Colors")).clicked() {
+                if self.current_tab == StylerTab::Preview {
+                    let ctx = ui.ctx();
+                    ctx.set_fonts(FontDefinitions::default());
+                }
                 self.current_tab = StylerTab::Colors;
             }
             if ui.add(SelectableLabel::new(self.current_tab == StylerTab::Fonts, "Fonts")).clicked() {
+                if self.current_tab == StylerTab::Preview {
+                    let ctx = ui.ctx();
+                    ctx.set_fonts(FontDefinitions::default());
+                }
                 self.current_tab = StylerTab::Fonts;
             }
             if ui.add(SelectableLabel::new(self.current_tab == StylerTab::Spacing, "Spacing")).clicked() {
+                if self.current_tab == StylerTab::Preview {
+                    let ctx = ui.ctx();
+                    ctx.set_fonts(FontDefinitions::default());
+                }
                 self.current_tab = StylerTab::Spacing;
             }
             if ui.add(SelectableLabel::new(self.current_tab == StylerTab::Preview, "Preview")).clicked() {
                 self.current_tab = StylerTab::Preview;
+                let ctx = ui.ctx();
+                ctx.set_fonts(self.font_definitions.clone());
             }
         });
     }
@@ -96,13 +110,16 @@ impl StylerState {
                 StylerTab::Spacing => spacing_view(&mut self.style, ui),
                 StylerTab::Preview => {
                     self.preview.set_style(self.style.clone());
-                    
-                    self.preview.show(ui)
+                    self.preview.show(ui);
                 }
             }
         });
     }
     pub fn export_theme(&self) -> EguiTheme {
         EguiTheme { style: self.style.clone(), font_definitions: self.font_definitions.clone() }
+    }
+    pub fn import_theme(&mut self, theme: EguiTheme) {
+        self.style = theme.style;
+        self.font_definitions = theme.font_definitions;
     }
 }

@@ -1,4 +1,5 @@
 use eframe::{egui, epi};
+use std::{fs::File, io::{Read, Write}};
 use crate::views::StylerState;
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
@@ -54,13 +55,41 @@ impl epi::App for StylerApp {
                 // The top panel is often a good place for a menu bar:
                 egui::menu::bar(ui, |ui| {
                     egui::menu::menu(ui, "File", |ui| {
+                        // TODO: Make a generic FileDialog Modal
                         if ui.button("Save").clicked() {
-                            // Option some kind of model to load the file
-                            
+                            // Option a popup to save the file to a given directory
+                            let path = std::env::current_dir().expect("there should be a current directory");
+                            if let Some(path) = rfd::FileDialog::new()
+                                .add_filter("egui theme", &["ron", "eguitheme"])
+                                .set_directory(&path)
+                                .save_file() {
+                                let theme = self.state.export_theme();
+                                if let Ok(value) = ron::to_string(&theme) {
+                                    if let Ok(mut f) = File::create(path) {
+                                        f.write_all(value.as_bytes()).expect("this should work");
+                                    }
+                                    // TODO: Post an error message if this fails.
+                                }
+                                // TODO: Post some error modal
+                            }
                         }
                         if ui.button("Load").clicked() {
-                            // Option do some sort of file browser magic here.
-
+                            // Option a popup to load the file
+                            let path = std::env::current_dir().expect("there should be a current directory");
+                            if let Some(path) = rfd::FileDialog::new()
+                                .add_filter("egui theme", &["ron", "eguitheme"])
+                                .set_directory(&path)
+                                .pick_file() {
+                                if let Ok(mut f) = File::open(path) {
+                                    let mut buf = String::new();
+                                    f.read_to_string(&mut buf).expect("this should work");
+                                    if let Ok(theme) = ron::from_str(&buf) {
+                                        self.state.import_theme(theme);
+                                    }
+                                    // TODO: Post an error message if this fails.
+                                }
+                                // TODO: Post some error modal
+                            }
                         }
                         if ui.button("Quit").clicked() {
                             frame.quit();
@@ -75,6 +104,7 @@ impl epi::App for StylerApp {
                         }
                         if ui.button("Clear settings").clicked() {
                             self.state = StylerState::default();
+                            ctx.set_fonts(egui::FontDefinitions::default());
                         }
                         if ui.button("Reset App Theme Theme").clicked() {
                             ctx.set_style(egui::Style::default());
