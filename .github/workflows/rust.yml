@@ -19,11 +19,26 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+      - run: sudo apt-get update; sudo apt-get install libgtk-3-dev
       - uses: actions-rs/cargo@v1
         with:
           command: check
           args: --all-features
-
+  check_windows:
+    name: Check windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --all-features
+          
   check_wasm:
     name: Check wasm32
     runs-on: ubuntu-latest
@@ -50,7 +65,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - run: sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libspeechd-dev libxkbcommon-dev libssl-dev pango
+      - run: sudo apt-get update; sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libspeechd-dev libxkbcommon-dev libssl-dev libgtk-3-dev
       - uses: actions-rs/cargo@v1
         with:
           command: test
@@ -66,7 +81,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - run: rustup component add rustfmt
+      - run: rustup component add rustfmt; sudo apt-get update; sudo apt-get install libgtk-3-dev
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
@@ -82,7 +97,7 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - run: rustup component add clippy
+      - run: rustup component add clippy; sudo apt-get update; sudo apt-get install libgtk-3-dev
       - uses: actions-rs/cargo@v1
         with:
           command: clippy

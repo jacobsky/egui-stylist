@@ -9,6 +9,8 @@ pub use views::{EguiTheme, Preview, StylerState};
 
 #[cfg(target_arch = "wasm32")]
 use eframe::wasm_bindgen::{self, prelude::*};
+#[cfg(target_arch = "wasm32")]
+mod app;
 
 /// This is the entry-point for all the web-assembly.
 /// This is called once from the HTML.
@@ -17,6 +19,6 @@ use eframe::wasm_bindgen::{self, prelude::*};
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn start(canvas_id: &str) -> Result<(), eframe::wasm_bindgen::JsValue> {
-    let app = StylerApp::default();
+    let app = app::StylerApp::default();
     eframe::start_web(canvas_id, Box::new(app))
 }

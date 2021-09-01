@@ -1,5 +1,5 @@
-use eframe::egui::{ComboBox, FontDefinitions, Label, Style, Ui, FontFamily};
-use serde::{Serialize, Deserialize};
+use eframe::egui::{Style, Ui};
+use serde::{Deserialize, Serialize};
 mod widget_gallery;
 use widget_gallery::WidgetGallery;
 
@@ -20,11 +20,11 @@ impl Preview {
     pub fn set_style(&mut self, style: Style) {
         self.style = style;
     }
-    
+
     pub fn show(&mut self, ui: &mut Ui) {
         ui.heading("Preview");
         ui.set_style(self.style.clone());
-        
+
         self.gallery.ui(ui);
     }
 }
