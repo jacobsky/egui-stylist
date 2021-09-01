@@ -1,6 +1,6 @@
 [package]
 name = "egui_stylist"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Jacobsky"]
 edition = "2018"
 
@@ -17,7 +17,9 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # Gives us egui, epi and web+native backends
-eframe = "0.14.0" 
+eframe = "0.14.0"
+# Required for font serialization
+base64 = "0.13.0" 
 # For OS File Dialogs 
 rfd = { version = "0.4.3" }
 ron = "0.6.4"

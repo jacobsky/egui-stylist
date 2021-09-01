@@ -3,12 +3,6 @@ use std::path::Path;
 
 use eframe::egui::{Button, Checkbox, CollapsingHeader, DragValue, FontDefinitions, FontFamily, Grid, Label, TextEdit, TextStyle, Ui, Widget};
 
-const DEFAULT_FONTS: [&str; 4]  = [
-    "ProggyClean",
-    "Ubuntu-Light",
-    "NotoEmoji-Regular",
-    "emoji-icon-font"
-];
 #[derive(Default)]
 pub struct FontViewState {
     to_add_name: String,
@@ -54,8 +48,7 @@ fn add_font(state: &mut FontViewState, font_definitions: &mut FontDefinitions, u
                 let mut contents = Vec::new();
                 if reader.read_to_end(&mut contents).is_ok() {
                     font_definitions.font_data.insert(state.to_add_name.clone(), contents.into());
-                    // fonts_updated = true;
-                }
+                    }
                 // TODO: Give some sort of error popup or modal if this fails
             }
             // TODO: Add an error message or modal if this fails.
@@ -78,7 +71,7 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
             for (name, _data) in font_definitions.font_data.iter() {
                 ui.label(name);
                 // Cannot delete the default egui fonts without breaking things.
-                if !DEFAULT_FONTS.contains(&name.as_str()) {
+                if !super::DEFAULT_FONTS.contains(&name.as_str()) {
                     if ui.button("Delete").clicked()  {
                         state.to_delete.push(name.to_owned());
                     }
@@ -88,7 +81,6 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
             
             for key in state.to_delete.iter() {
                 font_definitions.font_data.remove(key);
-                // fonts_updated = true;
             }
             state.to_delete.clear();
         });
@@ -163,23 +155,18 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
             ui.label("Monospace");
             if DragValue::new(&mut mono_small).clamp_range(1..=100).ui(ui).changed() {
                 font_definitions.family_and_size.insert(TextStyle::Small, (FontFamily::Monospace, mono_small));
-                // fonts_updated = true;
             }
             if DragValue::new(&mut mono_body).clamp_range(1..=100).ui(ui).changed() {
                 font_definitions.family_and_size.insert(TextStyle::Body, (FontFamily::Monospace, mono_body));
-                // fonts_updated = true;
             }
             if DragValue::new(&mut mono_button).clamp_range(1..=100).ui(ui).changed() {
                 font_definitions.family_and_size.insert(TextStyle::Button, (FontFamily::Monospace, mono_button));
-                // fonts_updated = true;
             }
             if DragValue::new(&mut mono_heading).clamp_range(1..=100).ui(ui).changed() {
                 font_definitions.family_and_size.insert(TextStyle::Heading, (FontFamily::Monospace, mono_heading));
-                // fonts_updated = true;
             }
             if DragValue::new(&mut mono_monospace).clamp_range(1..=100).ui(ui).changed() {
                 font_definitions.family_and_size.insert(TextStyle::Monospace, (FontFamily::Monospace, mono_monospace));
-                // fonts_updated = true;
             }
             
 
@@ -191,31 +178,21 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
             let mut prop_heading = font_definitions.family_and_size.get(&TextStyle::Heading).map_or(12.0, |(_, s)| *s);
             let mut prop_monospace = font_definitions.family_and_size.get(&TextStyle::Monospace).map_or(12.0, |(_, s)| *s);
             if DragValue::new(&mut prop_small).clamp_range(1..=100).ui(ui).changed() {
-                // fonts_updated = true;
                 font_definitions.family_and_size.insert(TextStyle::Small, (FontFamily::Proportional, prop_small));
             }
             if DragValue::new(&mut prop_body).clamp_range(1..=100).ui(ui).changed() {
-                // fonts_updated = true;
                 font_definitions.family_and_size.insert(TextStyle::Body, (FontFamily::Proportional, prop_body));
             }
             if DragValue::new(&mut prop_button).clamp_range(1..=100).ui(ui).changed() {
-                // fonts_updated = true;
                 font_definitions.family_and_size.insert(TextStyle::Button, (FontFamily::Proportional, prop_button));
             }
             if DragValue::new(&mut prop_heading).clamp_range(1..=100).ui(ui).changed() {
-                // fonts_updated = true;
                 font_definitions.family_and_size.insert(TextStyle::Heading, (FontFamily::Proportional, prop_heading));
             }
             if DragValue::new(&mut prop_monospace).clamp_range(1..=100).ui(ui).changed() {
-                // fonts_updated = true;
                 font_definitions.family_and_size.insert(TextStyle::Monospace, (FontFamily::Proportional, prop_monospace));
             }
             ui.end_row();
         });
     });
-}
-
-pub fn update_fonts(ui: &mut Ui, font_definitions: &FontDefinitions) {
-    let ctx = ui.ctx();
-    ctx.set_fonts(font_definitions.clone());
 }

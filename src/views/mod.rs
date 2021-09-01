@@ -1,4 +1,6 @@
 //! This contains all the views that are used to construct the core of the application.
+use std::collections::{BTreeMap};
+
 use serde::{Deserialize, Serialize};
 use eframe::egui::{FontDefinitions, ScrollArea, Style, Ui};
 mod colors;
@@ -7,6 +9,12 @@ mod preview;
 mod shape;
 mod spacing;
 
+const DEFAULT_FONTS: [&str; 4]  = [
+    "ProggyClean",
+    "Ubuntu-Light",
+    "NotoEmoji-Regular",
+    "emoji-icon-font"
+];
 
 pub use colors::colors_view;
 pub use fonts::fonts_view;
@@ -25,12 +33,21 @@ enum StylerTab {
 #[derive(Serialize, Deserialize)]
 pub struct EguiTheme {
     style: Style,
-    font_definitions: FontDefinitions
+    font_definitions: FontDefinitions,
+    // Need to hold a reference to the font data as FontDefinitions does not serialize it automatically.
+    font_data: BTreeMap<String, String>,
 }
 
 impl EguiTheme {
     pub fn new(style: Style, font_definitions: FontDefinitions) -> Self {
-        Self { style, font_definitions }
+        // TODO: Determine if there is a better way to exclude the defaults.
+        let mut font_data = BTreeMap::new();
+        for (name, data) in font_definitions.font_data.iter() {
+            if !DEFAULT_FONTS.contains(&name.as_str()) {
+                font_data.insert(name.clone(), base64::encode(data));
+            }
+        }
+        Self { style, font_definitions, font_data }
     }
     pub fn style(&self) -> &Style {
         &self.style
@@ -40,8 +57,9 @@ impl EguiTheme {
     }
     /// Extracts the file information destructively and consumes `self`
     /// This can be used to avoid borrowing the data when importing a new `EguiTheme`
-    pub fn extract(self) -> (Style, FontDefinitions) {
-        (self.style, self.font_definitions)
+    pub fn extract(self) -> (Style, FontDefinitions, BTreeMap<String, String>) {
+        // let font_data = self.font_definitions.font_data.clone();
+        (self.style, self.font_definitions, self.font_data)
     }
 }
 
@@ -116,10 +134,14 @@ impl StylerState {
         });
     }
     pub fn export_theme(&self) -> EguiTheme {
-        EguiTheme { style: self.style.clone(), font_definitions: self.font_definitions.clone() }
+        EguiTheme::new(self.style.clone(), self.font_definitions.clone())
     }
     pub fn import_theme(&mut self, theme: EguiTheme) {
         self.style = theme.style;
         self.font_definitions = theme.font_definitions;
+        for (key, value) in theme.font_data.iter() {
+            let data = base64::decode(value).expect("this should work");
+            self.font_definitions.font_data.insert(key.to_owned(), std::borrow::Cow::Owned(data));
+        }
     }
 }

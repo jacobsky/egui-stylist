@@ -5,7 +5,7 @@
 mod app;
 pub use app::StylerApp;
 
-pub use egui_stylist::views as views;
+use egui_stylist::StylerState;
 // When compiling natively:
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {

@@ -2,8 +2,8 @@
 #![cfg_attr(not(debug_assertions), deny(warnings))] // Forbid warnings in release builds
 #![warn(clippy::all, rust_2018_idioms)]
 
-pub mod views;
-
+mod views;
+pub use views::{EguiTheme, Preview, StylerState};
 // ----------------------------------------------------------------------------
 // When compiling for web:
 
