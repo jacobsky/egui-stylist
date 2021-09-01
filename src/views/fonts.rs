@@ -58,6 +58,37 @@ fn add_font(state: &mut FontViewState, font_definitions: &mut FontDefinitions, u
 }
 
 
+fn font_priority(id: &str, family: FontFamily, font_definitions: &mut FontDefinitions, ui: &mut Ui) {
+    enum Direction { Up, Down };
+    let mut fonts = font_definitions.fonts_for_family.get(&family).expect("this should be valid").clone();
+    let mut swap = None;
+    Grid::new(id).num_columns(3).show(ui, |ui|{
+        for (i, name) in fonts.iter().enumerate() {
+            ui.label(name);
+            if i > 0 {
+                if ui.button("increase").clicked() {
+                    swap = Some((Direction::Up, i));
+                }
+            } else {
+                ui.label("");
+            }
+            if i < fonts.len() - 1 && ui.button("decrease").clicked() {
+                swap = Some((Direction::Down, i));
+            }
+            ui.end_row();
+        }
+    });
+    if let Some((dir, index)) = swap {
+        let new_index = match dir {
+            Direction::Up => { index - 1 },
+            Direction::Down => { index + 1 },
+        };
+        let font = fonts.remove(index);
+        fonts.insert(new_index, font);
+        font_definitions.fonts_for_family.insert(family, fonts);
+    }
+}
+
 /// Displays the current font definition from the core app widget and displays the ui to detect any addition changes.
 pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefinitions, ui: &mut Ui) {
     // Flag to indicate if we need to update the Context font data.
@@ -135,6 +166,16 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
                 
                 ui.end_row();
             }
+        });
+    });
+    CollapsingHeader::new("Font Priority").default_open(true).show(ui, |ui| {
+        CollapsingHeader::new("Proportional Priority").default_open(true).show(ui, |ui|{
+            font_priority("_proportional_priority", FontFamily::Proportional, font_definitions, ui);
+            ui.end_row();
+        });
+        CollapsingHeader::new("Monospace Priority").default_open(true).show(ui, |ui|{
+            font_priority("_monospace_priority",FontFamily::Monospace, font_definitions, ui);
+            ui.end_row();
         });
     });
     //TODO: Add a grid for each font which has a text edit for each font type.s

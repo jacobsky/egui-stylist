@@ -65,6 +65,46 @@ impl WidgetGallery {
         });
     
     }
+    fn font_selector(ui: &mut egui::Ui) {
+        let mut proportional_fonts = ui.ctx().fonts().definitions().fonts_for_family.get(&egui::FontFamily::Proportional).expect("this should exist").clone();
+        let mut current_font = 0;
+        ui.add(egui::Label::new("Proportional Font"));
+        egui::ComboBox::from_id_source("_proportional_select")
+        .selected_text(&proportional_fonts[0])
+        .show_ui(ui, |ui| {
+            for (i, name) in proportional_fonts.iter().enumerate() {
+                ui.selectable_value(&mut current_font, i, name);
+            }
+        });
+        
+        if current_font > 0 {
+            let font = proportional_fonts.remove(current_font);
+            proportional_fonts.insert(0, font);
+            let mut fonts = ui.ctx().fonts().definitions().clone();
+            fonts.fonts_for_family.insert(egui::FontFamily::Proportional, proportional_fonts);
+            ui.ctx().set_fonts(fonts);
+        }
+        ui.end_row();
+
+        let mut monospace_fonts = ui.ctx().fonts().definitions().fonts_for_family.get(&egui::FontFamily::Monospace).expect("this should exist").clone();
+        let mut current_font = 0;
+        ui.add(egui::Label::new("Monospace Font"));
+        egui::ComboBox::from_id_source("_monospace_select")
+        .selected_text(&monospace_fonts[0])
+        .show_ui(ui, |ui| {
+            for (i, name) in monospace_fonts.iter().enumerate() {
+                ui.selectable_value(&mut current_font, i, name);
+            }
+        });
+        if current_font > 0 {
+            let font = monospace_fonts.remove(current_font);
+            monospace_fonts.insert(0, font);
+            let mut fonts = ui.ctx().fonts().definitions().clone();
+            fonts.fonts_for_family.insert(egui::FontFamily::Monospace, monospace_fonts);
+            ui.ctx().set_fonts(fonts);
+        }
+        ui.end_row();
+    }
     fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
         let Self {
             enabled: _,
@@ -80,6 +120,7 @@ impl WidgetGallery {
         ui.label("Label");
         ui.label("Welcome to the widget gallery!");
         ui.end_row();
+        WidgetGallery::font_selector(ui);
         egui::widgets::Label::new("Monospace Label").ui(ui);
         egui::widgets::Label::new("This is using the Monospace TextStyle").text_style(TextStyle::Monospace).ui(ui);
         ui.end_row();

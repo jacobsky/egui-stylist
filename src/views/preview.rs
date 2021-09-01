@@ -1,4 +1,4 @@
-use eframe::egui::{Style, Ui};
+use eframe::egui::{ComboBox, FontDefinitions, Label, Style, Ui, FontFamily};
 use serde::{Serialize, Deserialize};
 mod widget_gallery;
 use widget_gallery::WidgetGallery;
@@ -12,7 +12,6 @@ pub struct Preview {
 
 impl Preview {
     pub fn new(style: Style) -> Self {
-        
         Self {
             gallery: WidgetGallery::default(),
             style,
@@ -25,7 +24,7 @@ impl Preview {
     pub fn show(&mut self, ui: &mut Ui) {
         ui.heading("Preview");
         ui.set_style(self.style.clone());
-        // Label::new("body textthis is a label").text_style(TextStyle::Small::)
+        
         self.gallery.ui(ui);
     }
 }
