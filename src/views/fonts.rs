@@ -2,8 +2,8 @@ use std::io::Read;
 use std::path::Path;
 
 use eframe::egui::{
-    Button, Checkbox, CollapsingHeader, DragValue, FontDefinitions, FontFamily, Grid, Label,
-    TextEdit, TextStyle, Ui, Widget,
+    Button, Checkbox, CollapsingHeader, ComboBox, DragValue, FontDefinitions, FontFamily, Grid,
+    Label, TextEdit, TextStyle, Ui, Widget,
 };
 
 #[derive(Default)]
@@ -220,154 +220,62 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
                 });
         });
     //TODO: Add a grid for each font which has a text edit for each font type.s
-    CollapsingHeader::new("Font Style Sizes")
+    CollapsingHeader::new("Text Style Sizes")
         .default_open(true)
         .show(ui, |ui| {
             Grid::new("_families").num_columns(3).show(ui, |ui| {
-                let mut mono_small = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Small)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut mono_body = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Body)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut mono_button = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Button)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut mono_heading = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Heading)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut mono_monospace = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Monospace)
-                    .map_or(12.0, |(_, s)| *s);
-                ui.label("Family");
-                ui.label("Small");
-                ui.label("Body");
-                ui.label("Button");
-                ui.label("Heading");
-                ui.label("Monospace");
+                adjust_text_style_font_family_size("Small", font_definitions, TextStyle::Small, ui);
                 ui.end_row();
-                ui.label("Monospace");
-                if DragValue::new(&mut mono_small)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Small, (FontFamily::Monospace, mono_small));
-                }
-                if DragValue::new(&mut mono_body)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Body, (FontFamily::Monospace, mono_body));
-                }
-                if DragValue::new(&mut mono_button)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Button, (FontFamily::Monospace, mono_button));
-                }
-                if DragValue::new(&mut mono_heading)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Heading, (FontFamily::Monospace, mono_heading));
-                }
-                if DragValue::new(&mut mono_monospace)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions.family_and_size.insert(
-                        TextStyle::Monospace,
-                        (FontFamily::Monospace, mono_monospace),
-                    );
-                }
-
+                adjust_text_style_font_family_size("Body", font_definitions, TextStyle::Body, ui);
                 ui.end_row();
-                ui.label("Proportional");
-                let mut prop_small = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Small)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut prop_body = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Body)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut prop_button = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Button)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut prop_heading = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Heading)
-                    .map_or(12.0, |(_, s)| *s);
-                let mut prop_monospace = font_definitions
-                    .family_and_size
-                    .get(&TextStyle::Monospace)
-                    .map_or(12.0, |(_, s)| *s);
-                if DragValue::new(&mut prop_small)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Small, (FontFamily::Proportional, prop_small));
-                }
-                if DragValue::new(&mut prop_body)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Body, (FontFamily::Proportional, prop_body));
-                }
-                if DragValue::new(&mut prop_button)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Button, (FontFamily::Proportional, prop_button));
-                }
-                if DragValue::new(&mut prop_heading)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions
-                        .family_and_size
-                        .insert(TextStyle::Heading, (FontFamily::Proportional, prop_heading));
-                }
-                if DragValue::new(&mut prop_monospace)
-                    .clamp_range(1..=100)
-                    .ui(ui)
-                    .changed()
-                {
-                    font_definitions.family_and_size.insert(
-                        TextStyle::Monospace,
-                        (FontFamily::Proportional, prop_monospace),
-                    );
-                }
+                adjust_text_style_font_family_size(
+                    "Heading",
+                    font_definitions,
+                    TextStyle::Heading,
+                    ui,
+                );
+                ui.end_row();
+                adjust_text_style_font_family_size(
+                    "Monospace",
+                    font_definitions,
+                    TextStyle::Monospace,
+                    ui,
+                );
+                ui.end_row();
+                adjust_text_style_font_family_size(
+                    "Button",
+                    font_definitions,
+                    TextStyle::Button,
+                    ui,
+                );
                 ui.end_row();
             });
         });
+}
+
+fn adjust_text_style_font_family_size(
+    label: &str,
+    font_definitions: &mut FontDefinitions,
+    text_style: TextStyle,
+    ui: &mut Ui,
+) {
+    let (mut text_family, mut text_size) = font_definitions
+        .family_and_size
+        .get(&text_style)
+        .map_or((FontFamily::Proportional, 12.0), |(f, s)| (*f, *s));
+    ui.label(label);
+    let dv_response = DragValue::new(&mut text_size).clamp_range(1..=100).ui(ui);
+
+    let current_family = text_family;
+    ComboBox::from_label(format!("Family for {}", label))
+        .selected_text(format!("{:?}", text_family))
+        .show_ui(ui, |ui| {
+            ui.selectable_value(&mut text_family, FontFamily::Proportional, "Proportional");
+            ui.selectable_value(&mut text_family, FontFamily::Monospace, "Monospace");
+        });
+    if dv_response.changed() || current_family.ne(&text_family) {
+        font_definitions
+            .family_and_size
+            .insert(text_style, (text_family, text_size));
+    }
 }

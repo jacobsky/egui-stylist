@@ -1,6 +1,6 @@
 [package]
 name = "egui_stylist"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Jacobsky"]
 edition = "2018"
 
@@ -27,7 +27,6 @@ futures = "0.3"
 
 [features]
 default = ["persistence"]
-# native = ["rfd"]
 http = ["eframe/http"] # Enable if you want to do http requests
 persistence = ["eframe/persistence", "serde"] # Enable if you want to persist app state on shutdown
 

@@ -64,9 +64,18 @@ impl EguiTheme {
     }
     /// Extracts the file information destructively and consumes `self`
     /// This can be used to avoid borrowing the data when importing a new `EguiTheme`
-    pub fn extract(self) -> (Style, FontDefinitions, BTreeMap<String, String>) {
-        // let font_data = self.font_definitions.font_data.clone();
-        (self.style, self.font_definitions, self.font_data)
+    pub fn extract(mut self) -> (Style, FontDefinitions) {
+        // This is a workaround since the font_data is not automatically serialized.
+        // If the keys are not found in the font data, we need to add them before allowing the data to be extracted
+        for (key, value) in self.font_data.iter() {
+            if !self.font_definitions.font_data.contains_key(key) {
+                let data = base64::decode(value).expect("this should work");
+                self.font_definitions
+                    .font_data
+                    .insert(key.to_owned(), std::borrow::Cow::Owned(data));
+            }
+        }
+        (self.style, self.font_definitions)
     }
 }
 
