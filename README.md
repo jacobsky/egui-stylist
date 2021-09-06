@@ -1,6 +1,6 @@
 # egui stylist
 
-> *Note* this project is considered to be experimental and -- while used in personal projects -- may have API breaking changes without warning until 0.2.0 where this repo will start following normal SemVer semantics.
+> *Note* this project is considered to be experimental and -- while used in personal projects -- may have API breaking changes without warning until 0.1.0 where this repo will start following normal Semantic Versioning.
 
 This project is to help create reusable themes that can be serialized into and from egui. This way it should be much easier to track, design and skin egui natively inside of egui.
 

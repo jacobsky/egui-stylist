@@ -32,7 +32,9 @@ enum StylerTab {
     Preview,
 }
 
-/// The EguiTheme contains all the relevant style and font infomration needed to successfully create transferrable themes for EguiApplications.
+/// The EguiTheme is the serializable contents of the relevant font information. this is only useful for writing and reading the Style and FontDefinitions from disk.
+/// This is essentially a container for `Style` and `FontDefinitions`
+/// In addition, it will also serialize the `egui::FontData` into `base64` format to encode the font data directly into the theme
 #[derive(Serialize, Deserialize)]
 pub struct EguiTheme {
     style: Style,
@@ -42,6 +44,9 @@ pub struct EguiTheme {
 }
 
 impl EguiTheme {
+    /// Create a new style from
+    /// `style` the egui style information
+    /// `font_definitions` the current font definitions.
     pub fn new(style: Style, font_definitions: FontDefinitions) -> Self {
         // TODO: Determine if there is a better way to exclude the defaults.
         let mut font_data = BTreeMap::new();
@@ -56,14 +61,10 @@ impl EguiTheme {
             font_data,
         }
     }
-    pub fn style(&self) -> &Style {
-        &self.style
-    }
-    pub fn font_definitions(&self) -> &FontDefinitions {
-        &self.font_definitions
-    }
-    /// Extracts the file information destructively and consumes `self`
-    /// This can be used to avoid borrowing the data when importing a new `EguiTheme`
+
+    /// Extracts the file information  and consumes the theme to retreive the `Style` and `FontDefinitions`
+    /// This is the only supported way to move the style and font data into Egui.
+    /// This should only be used when loading the theme from disk for the first time.
     pub fn extract(mut self) -> (Style, FontDefinitions) {
         // This is a workaround since the font_data is not automatically serialized.
         // If the keys are not found in the font data, we need to add them before allowing the data to be extracted

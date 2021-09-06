@@ -1,6 +1,6 @@
 [package]
 name = "egui_stylist"
-version = "0.1.3"
+version = "0.0.3"
 authors = ["Jacobsky"]
 edition = "2018"
 
