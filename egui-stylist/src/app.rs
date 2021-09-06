@@ -92,15 +92,19 @@ impl epi::App for StylerApp {
                                 .set_directory(&path)
                                 .pick_file(),
                         ) {
-                            if let Ok(mut f) = File::open(path.file_name()) {
+                            if let Ok(mut f) = File::open(path.path()) {
                                 let mut buf = String::new();
                                 f.read_to_string(&mut buf).expect("this should work");
                                 if let Ok(theme) = ron::from_str(&buf) {
                                     self.state.import_theme(theme);
+                                } else {
+                                    // TODO: Post an error message if this fails instead of panicking.
+                                    panic!("importing the font file failed!");
                                 }
-                                // TODO: Post an error message if this fails.
+                            } else {
+                                // TODO: Post some error modal
+                                panic!("failed to open the {:?}!", path);
                             }
-                            // TODO: Post some error modal
                         }
                     }
                     if ui.button("Quit").clicked() {

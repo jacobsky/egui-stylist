@@ -1,20 +1,12 @@
 //! This contains all the views that are used to construct the core of the application.
-use std::collections::BTreeMap;
-
 use eframe::egui::{FontDefinitions, ScrollArea, Style, Ui};
+use egui_theme::EguiTheme;
 use serde::{Deserialize, Serialize};
 mod colors;
 mod fonts;
 mod preview;
 // mod shape;
 mod spacing;
-
-const DEFAULT_FONTS: [&str; 4] = [
-    "ProggyClean",
-    "Ubuntu-Light",
-    "NotoEmoji-Regular",
-    "emoji-icon-font",
-];
 
 pub use colors::colors_view;
 pub use fonts::fonts_view;
@@ -31,55 +23,6 @@ enum StylerTab {
     Spacing,
     Preview,
 }
-
-/// The EguiTheme is the serializable contents of the relevant font information. this is only useful for writing and reading the Style and FontDefinitions from disk.
-/// This is essentially a container for `Style` and `FontDefinitions`
-/// In addition, it will also serialize the `egui::FontData` into `base64` format to encode the font data directly into the theme
-#[derive(Serialize, Deserialize)]
-pub struct EguiTheme {
-    style: Style,
-    font_definitions: FontDefinitions,
-    // Need to hold a reference to the font data as FontDefinitions does not serialize it automatically.
-    font_data: BTreeMap<String, String>,
-}
-
-impl EguiTheme {
-    /// Create a new style from
-    /// `style` the egui style information
-    /// `font_definitions` the current font definitions.
-    pub fn new(style: Style, font_definitions: FontDefinitions) -> Self {
-        // TODO: Determine if there is a better way to exclude the defaults.
-        let mut font_data = BTreeMap::new();
-        for (name, data) in font_definitions.font_data.iter() {
-            if !DEFAULT_FONTS.contains(&name.as_str()) {
-                font_data.insert(name.clone(), base64::encode(data));
-            }
-        }
-        Self {
-            style,
-            font_definitions,
-            font_data,
-        }
-    }
-
-    /// Extracts the file information  and consumes the theme to retreive the `Style` and `FontDefinitions`
-    /// This is the only supported way to move the style and font data into Egui.
-    /// This should only be used when loading the theme from disk for the first time.
-    pub fn extract(mut self) -> (Style, FontDefinitions) {
-        // This is a workaround since the font_data is not automatically serialized.
-        // If the keys are not found in the font data, we need to add them before allowing the data to be extracted
-        for (key, value) in self.font_data.iter() {
-            if !self.font_definitions.font_data.contains_key(key) {
-                let data = base64::decode(value).expect("this should work");
-                self.font_definitions
-                    .font_data
-                    .insert(key.to_owned(), std::borrow::Cow::Owned(data));
-            }
-        }
-        (self.style, self.font_definitions)
-    }
-}
-
 /// This is the framework agnostic application state
 #[derive(Serialize, Deserialize)]
 pub struct StylerState {
@@ -179,13 +122,9 @@ impl StylerState {
         EguiTheme::new(self.style.clone(), self.font_definitions.clone())
     }
     pub fn import_theme(&mut self, theme: EguiTheme) {
-        self.style = theme.style;
-        self.font_definitions = theme.font_definitions;
-        for (key, value) in theme.font_data.iter() {
-            let data = base64::decode(value).expect("this should work");
-            self.font_definitions
-                .font_data
-                .insert(key.to_owned(), std::borrow::Cow::Owned(data));
-        }
+        let (style, font_definitions) = theme.extract();
+        self.style = style;
+        self.font_definitions = font_definitions;
+        println!("{:?}", self.font_definitions.font_data);
     }
 }

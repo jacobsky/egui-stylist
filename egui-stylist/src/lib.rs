@@ -3,7 +3,7 @@
 #![warn(clippy::all, rust_2018_idioms)]
 
 mod views;
-pub use views::{EguiTheme, Preview, StylerState};
+pub use views::{Preview, StylerState};
 // ----------------------------------------------------------------------------
 // When compiling for web:
 

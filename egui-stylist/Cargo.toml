@@ -1,0 +1,45 @@
+[package]
+name = "egui-stylist"
+version = "0.0.4"
+authors = ["Jacobsky"]
+edition = "2018"
+description="A theme addon for egui that enables reusable themes that serialize to and from egui."
+license="MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "egui-stylist-native"
+path = "src/main.rs"
+# required-features = ["native", "persistence"]
+
+[lib]
+name = "egui_stylist"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+egui-theme = { version = "0.0.4", path = "../egui-theme"}
+# Gives us egui, epi and web+native backends
+eframe = "0.14.0"
+# Required for font serialization
+base64 = "0.13.0" 
+rfd = "0.4.4"
+ron = "0.6.4"
+serde = { version = "1", features = ["derive"], optional = true }
+futures = "0.3"
+
+[features]
+default = ["persistence"]
+http = ["eframe/http"] # Enable if you want to do http requests
+persistence = ["eframe/persistence", "serde"] # Enable if you want to persist app state on shutdown
+
+[profile.release]
+opt-level = 2 # fast and small wasm
+
+[patch.crates-io]
+
+# If you want to use the bleeding edge version of `egui`:
+# eframe = { git = "https://github.com/emilk/egui", branch = "master" }
+
+# If you fork https://github.com/emilk/egui you can test with:
+# eframe = { path = "../egui/eframe" }

@@ -1,6 +1,12 @@
 use std::io::Read;
 use std::path::Path;
 
+const DEFAULT_FONTS: [&str; 4] = [
+    "ProggyClean",
+    "Ubuntu-Light",
+    "NotoEmoji-Regular",
+    "emoji-icon-font",
+];
 use eframe::egui::{
     Button, Checkbox, CollapsingHeader, ComboBox, DragValue, FontDefinitions, FontFamily, Grid,
     Label, TextEdit, TextStyle, Ui, Widget,
@@ -119,9 +125,7 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
                 for (name, _data) in font_definitions.font_data.iter() {
                     ui.label(name);
                     // Cannot delete the default egui fonts without breaking things.
-                    if !super::DEFAULT_FONTS.contains(&name.as_str())
-                        && ui.button("Delete").clicked()
-                    {
+                    if !DEFAULT_FONTS.contains(&name.as_str()) && ui.button("Delete").clicked() {
                         state.to_delete.push(name.to_owned());
                     }
                     ui.end_row();
