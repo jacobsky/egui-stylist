@@ -4,9 +4,9 @@
 
 mod app;
 
-pub use app::{StylerApp};
+pub use app::StylerApp;
 
-use egui_stylist::{StylerState, StylerFileDialog};
+use egui_stylist::{StylerFileDialog, StylerState};
 // When compiling natively:
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {

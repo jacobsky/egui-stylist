@@ -1,10 +1,10 @@
-use crate::{StylerState, StylerFileDialog};
+use crate::{StylerFileDialog, StylerState};
 use eframe::{egui, epi};
-use std::path::PathBuf;
 use std::fs::File;
 use std::io::Read;
 #[cfg(not(target_arch = "wasm32"))]
 use std::io::Write;
+use std::path::PathBuf;
 
 fn open_error_window(ctx: &egui::CtxRef, title: &str, text: &str, open: &mut bool) {
     let window = egui::Window::new(title.to_owned())
@@ -48,23 +48,24 @@ fn open_file_dialog(kind: StylerFileDialog, filter: Option<(&str, &[&str])>) -> 
             if let Some(filter) = filter {
                 builder = builder.add_filter(filter.0, filter.1)
             }
-            builder.set_directory(&path)
-            .pick_file()
-        },
+            builder.set_directory(&path).pick_file()
+        }
         StylerFileDialog::Save => {
             let mut builder = rfd::FileDialog::new();
             if let Some(filter) = filter {
                 builder = builder.add_filter(filter.0, filter.1)
             }
-            builder.set_directory(&path)
-            .save_file()
+            builder.set_directory(&path).save_file()
         }
     }
 }
 
 // WASM specific settings due to different level of supprot in wasm32
 #[cfg(target_arch = "wasm32")]
-fn open_file_dialog(file_dialog: StylerFileDialog, filter: Option<(&str, &[&str])>) -> Option<PathBuf> {
+fn open_file_dialog(
+    file_dialog: StylerFileDialog,
+    filter: Option<(&str, &[&str])>,
+) -> Option<PathBuf> {
     use futures::executor::block_on;
     match file_dialog {
         StylerFileDialog::Open => {
@@ -73,7 +74,7 @@ fn open_file_dialog(file_dialog: StylerFileDialog, filter: Option<(&str, &[&str]
                 builder = builder.add_filter(filter.0, filter.1)
             }
             block_on(builder.pick_file());
-        },
+        }
         StylerFileDialog::Save => {
             // Save file dialogs are not supported with rfd at this time.
             None
@@ -97,7 +98,8 @@ impl epi::App for StylerApp {
         if let Some(storage) = storage {
             *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
         }
-        self.state.set_file_dialog_function(Box::new(open_file_dialog));
+        self.state
+            .set_file_dialog_function(Box::new(open_file_dialog));
     }
 
     /// Called by the frame work to save state before shutdown.
@@ -122,32 +124,38 @@ impl epi::App for StylerApp {
                 egui::menu::menu(ui, "File", |ui| {
                     if ui.button("Save").clicked() {
                         // Option a popup to save the file to a given directory
-                        if let Some(path) = self.state.file_dialog(StylerFileDialog::Save, Some(("eguitheme", &["ron", "eguitheme"]))) {
+                        if let Some(path) = self.state.file_dialog(
+                            StylerFileDialog::Save,
+                            Some(("eguitheme", &["ron", "eguitheme"])),
+                        ) {
                             let theme = self.state.export_theme();
                             match ron::to_string(&theme) {
-                                Ok(value) => {
-                                    match File::create(path) {
-                                        Ok(mut f) => {
-                                            if let Err(err) = f.write_all(value.as_bytes()) {
-                                                self.error_msg = format!("Saving failed with {}", err);
-                                                self.show_error_window = true;
-                                            }
-                                        },
-                                        Err(err) => {
-                                            self.error_msg = format!("Creating file failed with {}", err);
+                                Ok(value) => match File::create(path) {
+                                    Ok(mut f) => {
+                                        if let Err(err) = f.write_all(value.as_bytes()) {
+                                            self.error_msg = format!("Saving failed with {}", err);
                                             self.show_error_window = true;
                                         }
                                     }
+                                    Err(err) => {
+                                        self.error_msg =
+                                            format!("Creating file failed with {}", err);
+                                        self.show_error_window = true;
+                                    }
                                 },
                                 Err(err) => {
-                                    self.error_msg = format!("Opening file path failed with {}", err);
+                                    self.error_msg =
+                                        format!("Opening file path failed with {}", err);
                                     self.show_error_window = true;
                                 }
                             }
                         }
                     }
                     if ui.button("Load").clicked() {
-                        if let Some(path) = self.state.file_dialog(StylerFileDialog::Open, Some(("eguitheme", &["ron", "eguitheme"]))) {
+                        if let Some(path) = self.state.file_dialog(
+                            StylerFileDialog::Open,
+                            Some(("eguitheme", &["ron", "eguitheme"])),
+                        ) {
                             match File::open(path) {
                                 Ok(mut f) => {
                                     let mut buf = String::new();
@@ -155,16 +163,22 @@ impl epi::App for StylerApp {
                                     match ron::from_str(&buf) {
                                         Ok(theme) => self.state.import_theme(theme),
                                         Err(err) => {
-                                            self.error_msg = format!("Loading theme failed with the following error {}", err);
+                                            self.error_msg = format!(
+                                                "Loading theme failed with the following error {}",
+                                                err
+                                            );
                                             self.show_error_window = true;
                                         }
                                     }
-                                },
+                                }
                                 Err(err) => {
-                                        self.error_msg = format!("Loading theme failed with the following error {}", err);
-                                        self.error_msg = format!("Failed to open file due to: {}", err);
-                                        self.show_error_window = true;
-                                }   
+                                    self.error_msg = format!(
+                                        "Loading theme failed with the following error {}",
+                                        err
+                                    );
+                                    self.error_msg = format!("Failed to open file due to: {}", err);
+                                    self.show_error_window = true;
+                                }
                             }
                         }
                     }
@@ -193,6 +207,11 @@ impl epi::App for StylerApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| self.state.ui(ui));
-        open_error_window(ctx, "Error", self.error_msg.as_str(), &mut self.show_error_window);
+        open_error_window(
+            ctx,
+            "Error",
+            self.error_msg.as_str(),
+            &mut self.show_error_window,
+        );
     }
 }

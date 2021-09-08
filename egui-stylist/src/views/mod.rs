@@ -18,10 +18,13 @@ pub use spacing::spacing_view;
 
 use self::fonts::FontViewState;
 
+type StylistFileDialogFunction =
+    Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>;
+
 /// This is used to allow the function intent to select what kind of File Dialog it wishes to open.
 pub enum StylerFileDialog {
     Open,
-    Save
+    Save,
 }
 
 #[derive(PartialEq, Serialize, Deserialize, Clone, Copy)]
@@ -41,7 +44,7 @@ pub struct StylerState {
     font_view_state: FontViewState,
     preview: Preview,
     #[serde(skip)]
-    pub file_dialog_function: Option<Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>>,
+    pub file_dialog_function: Option<StylistFileDialogFunction>,
 }
 
 impl StylerState {
@@ -57,17 +60,21 @@ impl StylerState {
     }
     /// Allow `egui` to get open a filepath from the user's perspective.
     /// This is to allow plumbing in of custom File Dialog
-    pub fn set_file_dialog_function(&mut self, f: Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>) {
+    pub fn set_file_dialog_function(&mut self, f: StylistFileDialogFunction) {
         self.file_dialog_function = Some(f);
     }
     /// Calls the file_dialog function and returns a path if it was found
-    pub fn file_dialog(&self, kind: StylerFileDialog, filter: Option<(&str, &[&str])>) -> Option<PathBuf> {
+    pub fn file_dialog(
+        &self,
+        kind: StylerFileDialog,
+        filter: Option<(&str, &[&str])>,
+    ) -> Option<PathBuf> {
         self.file_dialog_function
             .as_ref()
-            .map(|f| f(kind, filter) )
+            .map(|f| f(kind, filter))
             .flatten()
     }
-    
+
     fn tab_menu_ui(&mut self, ui: &mut Ui) {
         use eframe::egui::widgets::SelectableLabel;
         // Menu tabs
@@ -131,9 +138,12 @@ impl StylerState {
             // Show the content views.
             match self.current_tab {
                 StylerTab::Colors => colors_view(&mut self.style, ui),
-                StylerTab::Fonts => {
-                    fonts_view(&mut self.font_view_state, self.file_dialog_function.as_ref(), &mut self.font_definitions,  ui)
-                }
+                StylerTab::Fonts => fonts_view(
+                    &mut self.font_view_state,
+                    self.file_dialog_function.as_ref(),
+                    &mut self.font_definitions,
+                    ui,
+                ),
                 StylerTab::Spacing => spacing_view(&mut self.style, ui),
                 StylerTab::Preview => {
                     self.preview.set_style(self.style.clone());

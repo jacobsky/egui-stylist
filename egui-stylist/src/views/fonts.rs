@@ -1,7 +1,6 @@
-use std::io::Read;
 use super::StylerFileDialog;
-use std::path::{Path, PathBuf};
-
+use std::io::Read;
+use std::path::Path;
 
 const DEFAULT_FONTS: [&str; 4] = [
     "ProggyClean",
@@ -33,8 +32,9 @@ impl Default for FontViewState {
 fn add_font(
     state: &mut FontViewState,
     font_definitions: &mut FontDefinitions,
-    file_dialog_callback: Option<&Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>>,
-    ui: &mut Ui) {
+    file_dialog_callback: Option<&super::StylistFileDialogFunction>,
+    ui: &mut Ui,
+) {
     // let mut fonts_updated = false;
     ui.vertical(|ui| {
         Grid::new("_properties").num_columns(2).show(ui, |ui| {
@@ -45,10 +45,21 @@ fn add_font(
             ui.end_row();
             if let Some(file_dialog) = file_dialog_callback {
                 Label::new("Font File:").ui(ui);
-                let btn_text = if state.to_add_path.len() > 0 { state.to_add_path.clone() } else { "Open file dialog".to_owned() };
+                let btn_text = if !state.to_add_path.is_empty() {
+                    state.to_add_path.clone()
+                } else {
+                    "Open file dialog".to_owned()
+                };
                 if Button::new(btn_text).ui(ui).clicked() {
-                    if let Some(path) = file_dialog(StylerFileDialog::Open, Some(("font file", &["ttf", "otf"]))) {
-                        state.to_add_name = path.file_stem().unwrap_or_default().to_str().unwrap_or_default().to_owned();
+                    if let Some(path) =
+                        file_dialog(StylerFileDialog::Open, Some(("font file", &["ttf", "otf"])))
+                    {
+                        state.to_add_name = path
+                            .file_stem()
+                            .unwrap_or_default()
+                            .to_str()
+                            .unwrap_or_default()
+                            .to_owned();
                         state.to_add_path = path.to_str().unwrap_or_default().to_owned();
                     }
                 }
@@ -140,9 +151,10 @@ fn font_priority(
 /// Displays the current font definition from the core app widget and displays the ui to detect any addition changes.
 pub fn fonts_view(
     state: &mut FontViewState,
-    file_dialog_callback: Option<&Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<std::path::PathBuf>>>,
+    file_dialog_callback: Option<&super::StylistFileDialogFunction>,
     font_definitions: &mut FontDefinitions,
-    ui: &mut Ui) {
+    ui: &mut Ui,
+) {
     // Flag to indicate if we need to update the Context font data.
     // let mut fonts_updated = false;
     // font_definitions.
@@ -170,7 +182,9 @@ pub fn fonts_view(
         });
     CollapsingHeader::new("Add font")
         .default_open(true)
-        .show(ui, |ui| add_font(state, font_definitions, file_dialog_callback, ui));
+        .show(ui, |ui| {
+            add_font(state, font_definitions, file_dialog_callback, ui)
+        });
     //TODO: Add a grid that lists all the fonts and their relevant font families
     CollapsingHeader::new("Font Families")
         .default_open(true)
