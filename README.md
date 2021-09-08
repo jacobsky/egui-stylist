@@ -1,6 +1,11 @@
 # egui stylist
 
-> *Note* this project is considered to be experimental and -- while used in personal projects -- may have API breaking changes without warning until 0.1.0 where this repo will start following normal Semantic Versioning.
+[![Latest version](https://img.shields.io/crates/v/egui-stylist.svg)](https://crates.io/crates/egui-stylist)
+[![Documentation](https://docs.rs/egui-stylist/badge.svg)](https://docs.rs/egui-stylist)
+[![Build Status](https://github.com/jacobsky/egui-stylist/workflows/CI/badge.svg)](https://github.com/jacobsky/egui-stylist/actions?workflow=CI)
+![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+
+> *Note* this project is considered to be experimental and -- while used in personal projects -- may have API breaking changes without warning until 0.1.0 where this repo will start following normal [Cargo's Semantic Versioning](https://doc.rust-lang.org/cargo/reference/semver.html) for API changes.
 
 This project is to help create reusable themes that can be serialized into and from egui. This way it should be much easier to track, design and skin egui natively inside of egui.
 
@@ -25,6 +30,6 @@ This library is built with [egui](https://docs.rs/egui/) and can be run as a wid
 
 Contributions to should be made in the form of GitHub pull requests. I will be happy to review and include any additional changes that make sense for the project.
 
-Please make sure to run `cargo fmt` and `cargo clippy` before submitting your pull requests. To keep the main repository as clean as possible, please also ensure that the repository has any `warnings` from the compiler fixed.
+Please make sure to run `cargo fmt` and `cargo clippy` before submitting your pull requests. To keep the main repository as clean as possible, please also ensure that the repository has any `warnings` from the compiler fixed. Also, as `egui` does not require any use of `unsafe` at this moment, unsafe is considered to be forbidden
 
 All contributions freely made to this projects are licensed as per the terms of the MIT License.

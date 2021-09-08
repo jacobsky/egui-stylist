@@ -1,5 +1,7 @@
 use std::io::Read;
-use std::path::Path;
+use super::StylerFileDialog;
+use std::path::{Path, PathBuf};
+
 
 const DEFAULT_FONTS: [&str; 4] = [
     "ProggyClean",
@@ -12,14 +14,27 @@ use eframe::egui::{
     Label, TextEdit, TextStyle, Ui, Widget,
 };
 
-#[derive(Default)]
 pub struct FontViewState {
     to_add_name: String,
     to_add_path: String,
     to_delete: Vec<String>,
 }
 
-fn add_font(state: &mut FontViewState, font_definitions: &mut FontDefinitions, ui: &mut Ui) {
+impl Default for FontViewState {
+    fn default() -> Self {
+        Self {
+            to_add_name: "".to_owned(),
+            to_add_path: "".to_owned(),
+            to_delete: Vec::new(),
+        }
+    }
+}
+
+fn add_font(
+    state: &mut FontViewState,
+    font_definitions: &mut FontDefinitions,
+    file_dialog_callback: Option<&Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>>,
+    ui: &mut Ui) {
     // let mut fonts_updated = false;
     ui.vertical(|ui| {
         Grid::new("_properties").num_columns(2).show(ui, |ui| {
@@ -28,11 +43,23 @@ fn add_font(state: &mut FontViewState, font_definitions: &mut FontDefinitions, u
                 .hint_text("The name to register font as")
                 .ui(ui);
             ui.end_row();
-            Label::new("Path to Font File:").ui(ui);
-            TextEdit::singleline(&mut state.to_add_path)
-                .hint_text("filepath to the font data (.ttf or .otf file)")
-                .ui(ui);
-            ui.end_row();
+            if let Some(file_dialog) = file_dialog_callback {
+                Label::new("Font File:").ui(ui);
+                let btn_text = if state.to_add_path.len() > 0 { state.to_add_path.clone() } else { "Open file dialog".to_owned() };
+                if Button::new(btn_text).ui(ui).clicked() {
+                    if let Some(path) = file_dialog(StylerFileDialog::Open, Some(("font file", &["ttf", "otf"]))) {
+                        state.to_add_name = path.file_stem().unwrap_or_default().to_str().unwrap_or_default().to_owned();
+                        state.to_add_path = path.to_str().unwrap_or_default().to_owned();
+                    }
+                }
+            } else {
+                // This is the fallback in case the file_dialog_callback is not set.
+                Label::new("Path to Font File:").ui(ui);
+                TextEdit::singleline(&mut state.to_add_path)
+                    .hint_text("filepath to the font data (.ttf or .otf file)")
+                    .ui(ui);
+                ui.end_row();
+            }
         });
         let path = Path::new(&state.to_add_path);
         let enabled = {
@@ -111,7 +138,11 @@ fn font_priority(
 }
 
 /// Displays the current font definition from the core app widget and displays the ui to detect any addition changes.
-pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefinitions, ui: &mut Ui) {
+pub fn fonts_view(
+    state: &mut FontViewState,
+    file_dialog_callback: Option<&Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<std::path::PathBuf>>>,
+    font_definitions: &mut FontDefinitions,
+    ui: &mut Ui) {
     // Flag to indicate if we need to update the Context font data.
     // let mut fonts_updated = false;
     // font_definitions.
@@ -139,7 +170,7 @@ pub fn fonts_view(state: &mut FontViewState, font_definitions: &mut FontDefiniti
         });
     CollapsingHeader::new("Add font")
         .default_open(true)
-        .show(ui, |ui| add_font(state, font_definitions, ui));
+        .show(ui, |ui| add_font(state, font_definitions, file_dialog_callback, ui));
     //TODO: Add a grid that lists all the fonts and their relevant font families
     CollapsingHeader::new("Font Families")
         .default_open(true)

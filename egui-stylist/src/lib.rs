@@ -3,7 +3,7 @@
 #![warn(clippy::all, rust_2018_idioms)]
 
 mod views;
-pub use views::{Preview, StylerState};
+pub use views::{Preview, StylerState, StylerFileDialog};
 // ----------------------------------------------------------------------------
 // When compiling for web:
 
@@ -11,7 +11,6 @@ pub use views::{Preview, StylerState};
 use eframe::wasm_bindgen::{self, prelude::*};
 #[cfg(target_arch = "wasm32")]
 mod app;
-
 /// This is the entry-point for all the web-assembly.
 /// This is called once from the HTML.
 /// It loads the app, installs some callbacks, then returns.

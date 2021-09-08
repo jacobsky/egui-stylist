@@ -1,3 +1,7 @@
+#![forbid(unsafe_code)]
+#![cfg_attr(not(debug_assertions), deny(warnings))] // Forbid warnings in release builds
+#![warn(clippy::all, rust_2018_idioms)]
+
 use egui::{FontDefinitions, Style};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -11,7 +15,8 @@ const DEFAULT_FONTS: [&str; 4] = [
 
 /// The EguiTheme is the serializable contents of the relevant font information. this is only useful for writing and reading the Style and FontDefinitions from disk.
 /// This is essentially a container for `Style` and `FontDefinitions`
-/// In addition, it will also serialize the `egui::FontData` into `base64` format to encode the font data directly into the theme
+/// In addition, it will also serialize the `egui::FontData` into `base64` format to encode the font data directly into the theme.
+/// Note: The theme is not intended to be used with `egui` as style information. This is intended only as a data container for disk
 #[derive(Serialize, Deserialize)]
 pub struct EguiTheme {
     style: Style,
@@ -25,7 +30,6 @@ impl EguiTheme {
     /// `style` the egui style information
     /// `font_definitions` the current font definitions.
     pub fn new(style: Style, font_definitions: FontDefinitions) -> Self {
-        println!("new egui theme!");
         // TODO: Determine if there is a better way to exclude the defaults.
         let mut font_data = BTreeMap::new();
         for (name, data) in font_definitions.font_data.iter() {
@@ -40,17 +44,14 @@ impl EguiTheme {
         }
     }
 
-    /// Extracts the file information  and consumes the theme to retreive the `Style` and `FontDefinitions`
-    /// This is the only supported way to move the style and font data into Egui.
-    /// This should only be used when loading the theme from disk for the first time.
+    /// Extracts the theme information destructively. The theme will no longer be usable after extraction and will move the `Style` and `FontDefinitions` data for use.
+    /// with the `egui` context.
+    /// Style and font data should be managed by your application after this point.
     pub fn extract(mut self) -> (Style, FontDefinitions) {
         // This is a workaround since the font_data is not automatically serialized.
         // If the keys are not found in the font data, we need to add them before allowing the data to be extracted
-        println!("extract!");
         for (key, value) in self.font_data.iter() {
-            println!("{}", key);
             if !self.font_definitions.font_data.contains_key(key) {
-                println!("data len: {}", value.len());
                 let data = base64::decode(value).expect("this should work");
                 self.font_definitions
                     .font_data

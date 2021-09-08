@@ -17,8 +17,6 @@ crate-type = ["cdylib", "rlib"]
 egui = { version = "0.14.2", features = ["persistence"]}
 # This is for adding the font data to the code
 base64 = "0.13.0" 
-# This is used for serialization of the font data into Rusty object notation
-ron = "0.6.4"
 # This is used for serialization
 serde = { version = "1", features = ["derive"] }
 

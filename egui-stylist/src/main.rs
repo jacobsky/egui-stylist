@@ -3,9 +3,10 @@
 #![warn(clippy::all, rust_2018_idioms)]
 
 mod app;
-pub use app::StylerApp;
 
-use egui_stylist::StylerState;
+pub use app::{StylerApp};
+
+use egui_stylist::{StylerState, StylerFileDialog};
 // When compiling natively:
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {

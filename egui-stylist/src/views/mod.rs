@@ -1,4 +1,6 @@
 //! This contains all the views that are used to construct the core of the application.
+use std::path::PathBuf;
+
 use eframe::egui::{FontDefinitions, ScrollArea, Style, Ui};
 use egui_theme::EguiTheme;
 use serde::{Deserialize, Serialize};
@@ -16,6 +18,12 @@ pub use spacing::spacing_view;
 
 use self::fonts::FontViewState;
 
+/// This is used to allow the function intent to select what kind of File Dialog it wishes to open.
+pub enum StylerFileDialog {
+    Open,
+    Save
+}
+
 #[derive(PartialEq, Serialize, Deserialize, Clone, Copy)]
 enum StylerTab {
     Colors,
@@ -29,9 +37,11 @@ pub struct StylerState {
     current_tab: StylerTab,
     style: Style,
     font_definitions: FontDefinitions,
-    #[cfg_attr(feature = "persistence", serde(skip))]
+    #[serde(skip)]
     font_view_state: FontViewState,
     preview: Preview,
+    #[serde(skip)]
+    pub file_dialog_function: Option<Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>>,
 }
 
 impl StylerState {
@@ -42,8 +52,22 @@ impl StylerState {
             font_definitions: FontDefinitions::default(),
             font_view_state: FontViewState::default(),
             preview: Preview::new(Style::default()),
+            file_dialog_function: None,
         }
     }
+    /// Allow `egui` to get open a filepath from the user's perspective.
+    /// This is to allow plumbing in of custom File Dialog
+    pub fn set_file_dialog_function(&mut self, f: Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>) {
+        self.file_dialog_function = Some(f);
+    }
+    /// Calls the file_dialog function and returns a path if it was found
+    pub fn file_dialog(&self, kind: StylerFileDialog, filter: Option<(&str, &[&str])>) -> Option<PathBuf> {
+        self.file_dialog_function
+            .as_ref()
+            .map(|f| f(kind, filter) )
+            .flatten()
+    }
+    
     fn tab_menu_ui(&mut self, ui: &mut Ui) {
         use eframe::egui::widgets::SelectableLabel;
         // Menu tabs
@@ -108,7 +132,7 @@ impl StylerState {
             match self.current_tab {
                 StylerTab::Colors => colors_view(&mut self.style, ui),
                 StylerTab::Fonts => {
-                    fonts_view(&mut self.font_view_state, &mut self.font_definitions, ui)
+                    fonts_view(&mut self.font_view_state, self.file_dialog_function.as_ref(), &mut self.font_definitions,  ui)
                 }
                 StylerTab::Spacing => spacing_view(&mut self.style, ui),
                 StylerTab::Preview => {
@@ -125,6 +149,5 @@ impl StylerState {
         let (style, font_definitions) = theme.extract();
         self.style = style;
         self.font_definitions = font_definitions;
-        println!("{:?}", self.font_definitions.font_data);
     }
 }
