@@ -1,4 +1,4 @@
-use super::StylerFileDialog;
+use super::StylistFileDialog;
 use std::io::Read;
 use std::path::Path;
 
@@ -51,9 +51,10 @@ fn add_font(
                     "Open file dialog".to_owned()
                 };
                 if Button::new(btn_text).ui(ui).clicked() {
-                    if let Some(path) =
-                        file_dialog(StylerFileDialog::Open, Some(("font file", &["ttf", "otf"])))
-                    {
+                    if let Some(path) = file_dialog(
+                        StylistFileDialog::Open,
+                        Some(("font file", &["ttf", "otf"])),
+                    ) {
                         state.to_add_name = path
                             .file_stem()
                             .unwrap_or_default()

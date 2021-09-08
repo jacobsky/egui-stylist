@@ -3,7 +3,7 @@
 #![warn(clippy::all, rust_2018_idioms)]
 
 mod views;
-pub use views::{Preview, StylerFileDialog, StylerState};
+pub use views::{Preview, StylistFileDialog, StylistState};
 // ----------------------------------------------------------------------------
 // When compiling for web:
 

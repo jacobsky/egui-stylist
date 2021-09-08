@@ -19,10 +19,10 @@ pub use spacing::spacing_view;
 use self::fonts::FontViewState;
 
 type StylistFileDialogFunction =
-    Box<dyn Fn(StylerFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>;
+    Box<dyn Fn(StylistFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>;
 
 /// This is used to allow the function intent to select what kind of File Dialog it wishes to open.
-pub enum StylerFileDialog {
+pub enum StylistFileDialog {
     Open,
     Save,
 }
@@ -36,7 +36,7 @@ enum StylerTab {
 }
 /// This is the framework agnostic application state
 #[derive(Serialize, Deserialize)]
-pub struct StylerState {
+pub struct StylistState {
     current_tab: StylerTab,
     style: Style,
     font_definitions: FontDefinitions,
@@ -47,7 +47,7 @@ pub struct StylerState {
     pub file_dialog_function: Option<StylistFileDialogFunction>,
 }
 
-impl StylerState {
+impl StylistState {
     pub fn default() -> Self {
         Self {
             current_tab: StylerTab::Colors,
@@ -66,7 +66,7 @@ impl StylerState {
     /// Calls the file_dialog function and returns a path if it was found
     pub fn file_dialog(
         &self,
-        kind: StylerFileDialog,
+        kind: StylistFileDialog,
         filter: Option<(&str, &[&str])>,
     ) -> Option<PathBuf> {
         self.file_dialog_function

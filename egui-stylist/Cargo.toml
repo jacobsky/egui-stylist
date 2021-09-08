@@ -8,11 +8,12 @@ license="MIT"
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# Standalone application
 [[bin]]
 name = "egui-stylist-native"
 path = "src/main.rs"
-# required-features = ["native", "persistence"]
 
+# Embeddable application library
 [lib]
 name = "egui_stylist"
 path = "src/lib.rs"

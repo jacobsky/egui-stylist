@@ -1,4 +1,4 @@
-use crate::{StylerFileDialog, StylerState};
+use crate::{StylistFileDialog, StylistState};
 use eframe::{egui, epi};
 use std::fs::File;
 use std::io::Read;
@@ -21,17 +21,17 @@ fn open_error_window(ctx: &egui::CtxRef, title: &str, text: &str, open: &mut boo
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "persistence", serde(default))] // if we add new fields, give them default values when deserializing old state
-pub struct StylerApp {
+pub struct StylistApp {
     // This is the main
-    state: StylerState,
+    state: StylistState,
     show_error_window: bool,
     error_msg: String,
 }
 
-impl Default for StylerApp {
+impl Default for StylistApp {
     fn default() -> Self {
         Self {
-            state: StylerState::default(),
+            state: StylistState::default(),
             show_error_window: false,
             error_msg: "".to_owned(),
         }
@@ -39,18 +39,18 @@ impl Default for StylerApp {
 }
 /// Native filedialogs for Windows, Unix and MacOs via rfd crate.
 #[cfg(not(target_arch = "wasm32"))]
-fn open_file_dialog(kind: StylerFileDialog, filter: Option<(&str, &[&str])>) -> Option<PathBuf> {
+fn open_file_dialog(kind: StylistFileDialog, filter: Option<(&str, &[&str])>) -> Option<PathBuf> {
     // Option a popup to save the file to a given directory
     let path = std::env::current_dir().expect("there should be a current directory");
     match kind {
-        StylerFileDialog::Open => {
+        StylistFileDialog::Open => {
             let mut builder = rfd::FileDialog::new();
             if let Some(filter) = filter {
                 builder = builder.add_filter(filter.0, filter.1)
             }
             builder.set_directory(&path).pick_file()
         }
-        StylerFileDialog::Save => {
+        StylistFileDialog::Save => {
             let mut builder = rfd::FileDialog::new();
             if let Some(filter) = filter {
                 builder = builder.add_filter(filter.0, filter.1)
@@ -63,26 +63,26 @@ fn open_file_dialog(kind: StylerFileDialog, filter: Option<(&str, &[&str])>) -> 
 // WASM specific settings due to different level of supprot in wasm32
 #[cfg(target_arch = "wasm32")]
 fn open_file_dialog(
-    file_dialog: StylerFileDialog,
+    file_dialog: StylistFileDialog,
     filter: Option<(&str, &[&str])>,
 ) -> Option<PathBuf> {
     use futures::executor::block_on;
     match file_dialog {
-        StylerFileDialog::Open => {
+        StylistFileDialog::Open => {
             let mut builder = rfd::AsyncFileDialog::new();
             if let Some(filter) = filter {
                 builder = builder.add_filter(filter.0, filter.1)
             }
             block_on(builder.pick_file());
         }
-        StylerFileDialog::Save => {
+        StylistFileDialog::Save => {
             // Save file dialogs are not supported with rfd at this time.
             None
         }
     }
 }
 
-impl epi::App for StylerApp {
+impl epi::App for StylistApp {
     fn name(&self) -> &str {
         "egui styler"
     }
@@ -125,7 +125,7 @@ impl epi::App for StylerApp {
                     if ui.button("Save").clicked() {
                         // Option a popup to save the file to a given directory
                         if let Some(path) = self.state.file_dialog(
-                            StylerFileDialog::Save,
+                            StylistFileDialog::Save,
                             Some(("eguitheme", &["ron", "eguitheme"])),
                         ) {
                             let theme = self.state.export_theme();
@@ -153,7 +153,7 @@ impl epi::App for StylerApp {
                     }
                     if ui.button("Load").clicked() {
                         if let Some(path) = self.state.file_dialog(
-                            StylerFileDialog::Open,
+                            StylistFileDialog::Open,
                             Some(("eguitheme", &["ron", "eguitheme"])),
                         ) {
                             match File::open(path) {
@@ -195,7 +195,7 @@ impl epi::App for StylerApp {
                         ctx.set_fonts(font_definitions);
                     }
                     if ui.button("Clear settings").clicked() {
-                        self.state = StylerState::default();
+                        self.state = StylistState::default();
                         ctx.set_fonts(egui::FontDefinitions::default());
                     }
                     if ui.button("Reset App Theme Theme").clicked() {

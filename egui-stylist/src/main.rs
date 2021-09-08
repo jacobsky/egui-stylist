@@ -4,13 +4,13 @@
 
 mod app;
 
-pub use app::StylerApp;
+pub use app::StylistApp;
 
-use egui_stylist::{StylerFileDialog, StylerState};
+use egui_stylist::{StylistFileDialog, StylistState};
 // When compiling natively:
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
-    let app = StylerApp::default();
+    let app = StylistApp::default();
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(Box::new(app), native_options);
 }
