@@ -1,0 +1,39 @@
+[package]
+name = "egui-stylist-native"
+version = "0.0.4"
+authors = ["Jacobsky"]
+edition = "2018"
+description="The native application that runs e"
+license="MIT"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# Standalone application
+[[bin]]
+name = "egui-stylist-native"
+path = "src/main.rs"
+
+# TODO: Enable WASM32 builds for this
+# WASM build
+# [lib]
+# name = "egui_stylist_web"
+# path = "src/lib.rs"
+# crate-type = ["cdylib"]
+
+[dependencies]
+egui-theme = { version = "0.0.4", path = "../egui-theme"}
+egui-stylist = { version = "0.0.4", path = "../egui-stylist"}
+# Gives us egui, epi and web+native backends
+eframe = "0.14.0"
+# Required for font serialization
+base64 = "0.13.0" 
+rfd = "0.4.4"
+ron = "0.6.4"
+serde = { version = "1", features = ["derive"], optional = true }
+futures = "0.3"
+
+[features]
+default = ["persistence"]
+http = ["eframe/http"] # Enable if you want to do http requests
+persistence = ["eframe/persistence", "serde"] # Enable if you want to persist app state on shutdown
+

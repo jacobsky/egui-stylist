@@ -1,4 +1,4 @@
-use eframe::egui::{CollapsingHeader, Color32, Grid, Style, Ui};
+use egui::{CollapsingHeader, Color32, Grid, Style, Ui};
 
 /// Displays and modifies the style information related to color for the application.
 pub fn colors_view(style: &mut Style, ui: &mut Ui) {

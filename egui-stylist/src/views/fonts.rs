@@ -8,7 +8,7 @@ const DEFAULT_FONTS: [&str; 4] = [
     "NotoEmoji-Regular",
     "emoji-icon-font",
 ];
-use eframe::egui::{
+use egui::{
     Button, Checkbox, CollapsingHeader, ComboBox, DragValue, FontDefinitions, FontFamily, Grid,
     Label, TextEdit, TextStyle, Ui, Widget,
 };
@@ -199,7 +199,7 @@ pub fn fonts_view(
                     ui.label(name);
                     let mut is_monospace = if let Some(fonts) = font_definitions
                         .fonts_for_family
-                        .get(&eframe::egui::FontFamily::Monospace)
+                        .get(&egui::FontFamily::Monospace)
                     {
                         fonts.contains(name)
                     } else {
@@ -207,7 +207,7 @@ pub fn fonts_view(
                     };
                     let mut is_proportional = if let Some(fonts) = font_definitions
                         .fonts_for_family
-                        .get(&eframe::egui::FontFamily::Proportional)
+                        .get(&egui::FontFamily::Proportional)
                     {
                         fonts.contains(name)
                     } else {
@@ -218,7 +218,7 @@ pub fn fonts_view(
                     if response.clicked() {
                         let fonts = font_definitions
                             .fonts_for_family
-                            .get_mut(&eframe::egui::FontFamily::Proportional)
+                            .get_mut(&egui::FontFamily::Proportional)
                             .expect("this should exist");
                         if is_proportional {
                             fonts.push(name.to_owned());
@@ -230,7 +230,7 @@ pub fn fonts_view(
                     if response.clicked() {
                         let fonts = font_definitions
                             .fonts_for_family
-                            .get_mut(&eframe::egui::FontFamily::Monospace)
+                            .get_mut(&egui::FontFamily::Monospace)
                             .expect("this should exist");
                         if is_monospace {
                             fonts.push(name.to_owned());

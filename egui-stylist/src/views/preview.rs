@@ -1,4 +1,4 @@
-use eframe::egui::{Style, Ui};
+use egui::{Style, Ui};
 use serde::{Deserialize, Serialize};
 mod widget_gallery;
 use widget_gallery::WidgetGallery;

@@ -1,7 +1,7 @@
 //! This contains all the views that are used to construct the core of the application.
 use std::path::PathBuf;
 
-use eframe::egui::{FontDefinitions, ScrollArea, Style, Ui};
+use egui::{FontDefinitions, ScrollArea, Style, Ui};
 use egui_theme::EguiTheme;
 use serde::{Deserialize, Serialize};
 mod colors;
@@ -76,7 +76,7 @@ impl StylistState {
     }
 
     fn tab_menu_ui(&mut self, ui: &mut Ui) {
-        use eframe::egui::widgets::SelectableLabel;
+        use egui::widgets::SelectableLabel;
         // Menu tabs
         ui.horizontal(|ui| {
             if ui

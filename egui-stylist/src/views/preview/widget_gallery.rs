@@ -1,9 +1,8 @@
 //! This is modified from the widget gallery code available at the [egui repository](https://github.com/emilk/egui/blob/master/egui_demo_lib/src/apps/demo/widget_gallery.rs)
-use eframe::egui;
 use egui::{TextStyle, Widget};
 
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
+#[derive(serde::Deserialize, serde::Serialize)]
 enum Enum {
     First,
     Second,
@@ -11,7 +10,7 @@ enum Enum {
 }
 
 /// Shows off one example of each major type of widget.
-#[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct WidgetGallery {
     enabled: bool,
     visible: bool,

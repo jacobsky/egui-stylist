@@ -73,7 +73,8 @@ fn open_file_dialog(
             if let Some(filter) = filter {
                 builder = builder.add_filter(filter.0, filter.1)
             }
-            block_on(builder.pick_file());
+            let result = block_on(builder.pick_file());
+            result
         }
         StylistFileDialog::Save => {
             // Save file dialogs are not supported with rfd at this time.
