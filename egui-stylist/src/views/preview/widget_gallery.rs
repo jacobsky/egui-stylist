@@ -1,8 +1,7 @@
 //! This is modified from the widget gallery code available at the [egui repository](https://github.com/emilk/egui/blob/master/egui_demo_lib/src/apps/demo/widget_gallery.rs)
 use egui::{TextStyle, Widget};
 
-#[derive(Debug, PartialEq)]
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 enum Enum {
     First,
     Second,
