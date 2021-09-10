@@ -1,0 +1,38 @@
+name: Publish to crates.io
+
+on:
+  push:
+    branches:
+      - '!*'
+    tags:
+      - '*'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: Deploy
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
+        with:
+          profile: minimal
+          toolchain: stable
+          components: rustfmt, clippy
+      - name: Prerequisite tests
+        run: |
+          cargo fmt --all -- --check;
+          cargo clippy -p egui-stylist --all-features -- -D clippy::style -D clippy::complexity -D clippy::perf -D clippy::dbg_macro -D clippy::todo -D clippy::unimplemented;
+          cargo clippy -p egui-theme --all-features -- -D clippy::style -D clippy::complexity -D clippy::perf -D clippy::dbg_macro -D clippy::todo -D clippy::unimplemented;
+          cargo test -p egui-theme --all-features;
+          cargo test -p egui-stylist --all-features;
+      - name: Publishing to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        run: |
+          (cd egui-theme && cargo publish);
+          sleep 1m;
+          (cd egui-stylist  && cargo publish);

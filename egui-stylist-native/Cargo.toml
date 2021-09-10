@@ -1,9 +1,9 @@
 [package]
 name = "egui-stylist-native"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["Jacobsky"]
 edition = "2018"
-description="The native application that runs e"
+description="The native application for egui-stylist"
 license="MIT"
 readme = "README.md"
 
@@ -21,8 +21,8 @@ path = "src/main.rs"
 # crate-type = ["cdylib"]
 
 [dependencies]
-egui-theme = { version = "0.0.4", path = "../egui-theme"}
-egui-stylist = { version = "0.0.4", path = "../egui-stylist"}
+egui-theme = { version = "0.0.5", path = "../egui-theme"}
+egui-stylist = { version = "0.0.5", path = "../egui-stylist"}
 # Gives us egui, epi and web+native backends
 eframe = "0.14.0"
 # Required for font serialization
