@@ -10,13 +10,14 @@ const DEFAULT_FONTS: [&str; 4] = [
 ];
 use egui::{
     Button, Checkbox, CollapsingHeader, ComboBox, DragValue, FontDefinitions, FontFamily, Grid,
-    Label, TextEdit, TextStyle, Ui, Widget,
+    Label, Style, TextEdit, TextStyle, Ui, Widget,
 };
 
 pub struct FontViewState {
     to_add_name: String,
     to_add_path: String,
     to_delete: Vec<String>,
+    pub (crate) pixels_per_point: f32,
 }
 
 impl Default for FontViewState {
@@ -25,6 +26,7 @@ impl Default for FontViewState {
             to_add_name: "".to_owned(),
             to_add_path: "".to_owned(),
             to_delete: Vec::new(),
+            pixels_per_point: 1f32,
         }
     }
 }
@@ -154,14 +156,73 @@ pub fn fonts_view(
     state: &mut FontViewState,
     file_dialog_callback: Option<&super::StylistFileDialogFunction>,
     font_definitions: &mut FontDefinitions,
+    style: &mut Style,
     ui: &mut Ui,
 ) {
     // Flag to indicate if we need to update the Context font data.
     // let mut fonts_updated = false;
     // font_definitions.
-    ui.heading("Fonts Menu: WIP");
+    ui.heading("Fonts Menu");
     // This is a workaround for the default fonts which will crash the interface if they are deleted.
+    CollapsingHeader::new("General Settings")
+        .default_open(true)
+        .show(ui, |ui| {
+            Grid::new("_general_settings").show(ui, |ui| {
+                ui.label("Pixels Per Point");
+                DragValue::new(&mut state.pixels_per_point).clamp_range(0.001..=4.0).min_decimals(2).max_decimals(3).ui(ui);
+                ui.end_row();
 
+                ui.label("Body Text Style");
+                ComboBox::from_id_source("_body_text_style")
+                    .selected_text(format!("{:?}", &style.body_text_style))
+                    .show_ui(ui, |ui| {
+                        ui.selectable_value(
+                            &mut style.body_text_style,
+                            TextStyle::Heading,
+                            "Heading",
+                        );
+                        ui.selectable_value(&mut style.body_text_style, TextStyle::Body, "Body");
+                        ui.selectable_value(&mut style.body_text_style, TextStyle::Small, "Small");
+                        ui.selectable_value(
+                            &mut style.body_text_style,
+                            TextStyle::Button,
+                            "Button",
+                        );
+                        ui.selectable_value(
+                            &mut style.body_text_style,
+                            TextStyle::Monospace,
+                            "Monospace",
+                        );
+                    });
+                ui.end_row();
+
+                ui.label("Override Text Style");
+                let mut override_text_style = style.override_text_style.is_some();
+                let response = Checkbox::new(&mut &mut override_text_style, "").ui(ui);
+                if response.clicked() {
+                    if override_text_style && style.override_text_style.is_none() {
+                        style.override_text_style = Some(TextStyle::Body);
+                    } else if style.override_text_style.is_some() {
+                        style.override_text_style = None
+                    }
+                }
+                ui.end_row();
+                if let Some(text_style) = &mut style.override_text_style {
+                    ui.label("Override text style");
+                    ComboBox::from_id_source("_override_text_style")
+                        .selected_text(format!("{:?}", text_style))
+                        .show_ui(ui, |ui| {
+                            ui.selectable_value(text_style, TextStyle::Heading, "Heading");
+                            ui.selectable_value(text_style, TextStyle::Body, "Body");
+                            ui.selectable_value(text_style, TextStyle::Small, "Small");
+                            ui.selectable_value(text_style, TextStyle::Button, "Button");
+                            ui.selectable_value(text_style, TextStyle::Monospace, "Monospace");
+                        });
+                }
+                ui.end_row();
+                // pub override_text_style: Option<TextStyle>,
+            });
+        });
     CollapsingHeader::new("Installed Fonts")
         .default_open(true)
         .show(ui, |ui| {

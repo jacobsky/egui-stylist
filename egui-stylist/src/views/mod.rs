@@ -1,22 +1,18 @@
 //! This contains all the views that are used to construct the core of the application.
 use std::path::PathBuf;
 
-use egui::{FontDefinitions, ScrollArea, Style, Ui};
+use egui::{CentralPanel, Checkbox, FontDefinitions, ScrollArea, SidePanel, Style, Ui, Widget};
 use egui_theme::EguiTheme;
 use serde::{Deserialize, Serialize};
 mod colors;
 mod fonts;
 mod preview;
-// mod shape;
+mod shape;
 mod spacing;
 
-pub use colors::colors_view;
-pub use fonts::fonts_view;
 pub use preview::Preview;
-// pub use shape::shape_view;
-pub use spacing::spacing_view;
 
-use self::fonts::FontViewState;
+use fonts::FontViewState;
 
 type StylistFileDialogFunction =
     Box<dyn Fn(StylistFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>;
@@ -32,12 +28,17 @@ enum StylerTab {
     Colors,
     Fonts,
     Spacing,
-    Preview,
+    Shape,
 }
 /// This is the framework agnostic application state
 #[derive(Serialize, Deserialize)]
 pub struct StylistState {
     current_tab: StylerTab,
+    show_stylist: bool,
+    show_preview: bool,
+    // This is a workaround to fonts being set only in the UI
+    #[serde(skip)]
+    preview_fonts: bool,
     style: Style,
     font_definitions: FontDefinitions,
     #[serde(skip)]
@@ -52,6 +53,9 @@ impl StylistState {
         Self {
             current_tab: StylerTab::Colors,
             style: Style::default(),
+            show_stylist: true,
+            show_preview: true,
+            preview_fonts: false,
             font_definitions: FontDefinitions::default(),
             font_view_state: FontViewState::default(),
             preview: Preview::new(Style::default()),
@@ -86,10 +90,6 @@ impl StylistState {
                 ))
                 .clicked()
             {
-                if self.current_tab == StylerTab::Preview {
-                    let ctx = ui.ctx();
-                    ctx.set_fonts(FontDefinitions::default());
-                }
                 self.current_tab = StylerTab::Colors;
             }
             if ui
@@ -99,10 +99,6 @@ impl StylistState {
                 ))
                 .clicked()
             {
-                if self.current_tab == StylerTab::Preview {
-                    let ctx = ui.ctx();
-                    ctx.set_fonts(FontDefinitions::default());
-                }
                 self.current_tab = StylerTab::Fonts;
             }
             if ui
@@ -112,45 +108,71 @@ impl StylistState {
                 ))
                 .clicked()
             {
-                if self.current_tab == StylerTab::Preview {
-                    let ctx = ui.ctx();
-                    ctx.set_fonts(FontDefinitions::default());
-                }
                 self.current_tab = StylerTab::Spacing;
             }
+
             if ui
                 .add(SelectableLabel::new(
-                    self.current_tab == StylerTab::Preview,
-                    "Preview",
+                    self.current_tab == StylerTab::Shape,
+                    "Shape",
                 ))
                 .clicked()
             {
-                self.current_tab = StylerTab::Preview;
-                let ctx = ui.ctx();
-                ctx.set_fonts(self.font_definitions.clone());
+                self.current_tab = StylerTab::Shape;
+            }
+            Checkbox::new(&mut self.show_stylist, "Show Stylist").ui(ui);
+            Checkbox::new(&mut self.show_preview, "Show preview").ui(ui);
+            if Checkbox::new(&mut self.preview_fonts, "Preview Font Settings")
+                .ui(ui)
+                .clicked()
+            {
+                if self.preview_fonts {
+                    ui.ctx().set_fonts(self.font_definitions.clone());
+                    ui.ctx().set_pixels_per_point(self.font_view_state.pixels_per_point);
+                } else {
+                    ui.ctx().set_fonts(FontDefinitions::default());
+                    ui.ctx().set_pixels_per_point(1f32);
+                }
+            }
+            if ui.button("Reset").clicked() {
+                ui.reset_style();
+                ui.ctx().set_pixels_per_point(1f32);
+                ui.ctx().set_fonts(FontDefinitions::default());
             }
         });
     }
     pub fn ui(&mut self, ui: &mut Ui) {
         // Get the tab ui
         self.tab_menu_ui(ui);
-        ScrollArea::auto_sized().show(ui, |ui| {
-            // Show the content views.
-            match self.current_tab {
-                StylerTab::Colors => colors_view(&mut self.style, ui),
-                StylerTab::Fonts => fonts_view(
-                    &mut self.font_view_state,
-                    self.file_dialog_function.as_ref(),
-                    &mut self.font_definitions,
-                    ui,
-                ),
-                StylerTab::Spacing => spacing_view(&mut self.style, ui),
-                StylerTab::Preview => {
+        if self.show_stylist {
+            SidePanel::left("_stylist_panel")
+                .width_range(300.0..=900.0)
+                .show_inside(ui, |ui| {
+                    ScrollArea::auto_sized().show(ui, |ui| {
+                        // Show the content views.
+                        match self.current_tab {
+                            StylerTab::Colors => colors::colors_view(&mut self.style, ui),
+                            StylerTab::Fonts => fonts::fonts_view(
+                                &mut self.font_view_state,
+                                self.file_dialog_function.as_ref(),
+                                &mut self.font_definitions,
+                                &mut self.style,
+                                ui,
+                            ),
+                            StylerTab::Spacing => spacing::spacing_view(&mut self.style, ui),
+                            StylerTab::Shape => shape::shape_view(&mut self.style, ui),
+                        };
+                    });
+                });
+        }
+        if self.show_preview {
+            CentralPanel::default().show_inside(ui, |ui| {
+                ScrollArea::auto_sized().show(ui, |ui| {
                     self.preview.set_style(self.style.clone());
                     self.preview.show(ui);
-                }
-            }
-        });
+                });
+            });
+        }
     }
     pub fn export_theme(&self) -> EguiTheme {
         EguiTheme::new(self.style.clone(), self.font_definitions.clone())
