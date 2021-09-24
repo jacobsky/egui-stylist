@@ -6,6 +6,11 @@ use egui::{FontDefinitions, Style};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
+// This should be incremented anytime there is a new version.
+// In addition, a migration feature MUST exist for each version of this in order to preserve compatibility between older version of the
+// `EguiTheme` should changes be required.
+const CURRENT_VERSION: u32 = 0u32;
+
 const DEFAULT_FONTS: [&str; 4] = [
     "ProggyClean",
     "Ubuntu-Light",
@@ -19,6 +24,7 @@ const DEFAULT_FONTS: [&str; 4] = [
 /// Note: The theme is not intended to be used with `egui` as style information. This is intended only as a data container for disk
 #[derive(Serialize, Deserialize)]
 pub struct EguiTheme {
+    version: u32,
     style: Style,
     font_definitions: FontDefinitions,
     // Need to hold a reference to the font data as FontDefinitions does not serialize it automatically.
@@ -38,12 +44,15 @@ impl EguiTheme {
             }
         }
         Self {
+            version: CURRENT_VERSION,
             style,
             font_definitions,
             font_data,
         }
     }
-
+    pub fn version(&self) -> u32 {
+        self.version
+    }
     /// Extracts the theme information destructively. The theme will no longer be usable after extraction and will move the `Style` and `FontDefinitions` data for use.
     /// with the `egui` context.
     /// Style and font data should be managed by your application after this point.
