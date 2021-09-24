@@ -9,14 +9,16 @@
 
 ## How to use
 
-### Ron example
+The following example demonstrates how to create an `EguiTheme` and serialize it and deserialize it.
 
-When working with Rusty Object notation you can serialize and deserialize the theme information like so
 ```rust
+let theme = EguiTheme::new(
+    Style::default(),
+    FontDefinitions::default(),
+);
+let serialized_theme = ron::to_string(&theme).expect("this should serialize"):
+let theme = ron::from_string::<EguiTheme>(serialized_theme).expect("this should deserialize");
+let (style, font_definitions) = theme.extract();
 ```
 
-### Json example
-
-When working with Rusty Object notation you can serialize and deserialize the theme information like so
-```rust
-```
+After this point you can set the style and font definitions using [`egui::Context::set_style`](https://docs.rs/egui/0.14.2/egui/struct.Context.html#method.set_style) and [`egui::Context::set_fonts`](https://docs.rs/egui/0.14.2/egui/struct.Context.html#method.set_fonts) respectively.

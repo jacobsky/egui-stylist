@@ -18,21 +18,26 @@ const DEFAULT_FONTS: [&str; 4] = [
     "emoji-icon-font",
 ];
 
-/// The EguiTheme is the serializable contents of the relevant font information. this is only useful for writing and reading the Style and FontDefinitions from disk.
-/// This is essentially a container for `Style` and `FontDefinitions`
-/// In addition, it will also serialize the `egui::FontData` into `base64` format to encode the font data directly into the theme.
-/// Note: The theme is not intended to be used with `egui` as style information. This is intended only as a data container for disk
+/// The EguiTheme is the serializable contents of the relevant font information. This is intended to only be used when reading and writing the `Style` and `FontDefinition` information to/from disk.
+///
+/// The FontData is stored directly into the theme as base64 encoded Strings.
+///
+/// # Important
+/// This should only be used during the Serialization/Deserialization process. Once the loading has completed, this should be extracted directly to an egui::Context as soon as it has been fully loaded.
 #[derive(Serialize, Deserialize)]
 pub struct EguiTheme {
+    /// The version is used internally to determine how it should represent the data.
     version: u32,
+    /// This is the serialized EguiFont style information.
     style: Style,
+    /// This is the collection of the font definition information required.
     font_definitions: FontDefinitions,
-    // Need to hold a reference to the font data as FontDefinitions does not serialize it automatically.
+    /// Font data is used to store the serializable font information that is not otherwise serialized by egui.
     font_data: BTreeMap<String, String>,
 }
 
 impl EguiTheme {
-    /// Create a new style from
+    /// Create a new style from the required information.
     /// `style` the egui style information
     /// `font_definitions` the current font definitions.
     pub fn new(style: Style, font_definitions: FontDefinitions) -> Self {
@@ -50,12 +55,17 @@ impl EguiTheme {
             font_data,
         }
     }
+
+    /// Returns the version of this theme.
     pub fn version(&self) -> u32 {
         self.version
     }
-    /// Extracts the theme information destructively. The theme will no longer be usable after extraction and will move the `Style` and `FontDefinitions` data for use.
-    /// with the `egui` context.
-    /// Style and font data should be managed by your application after this point.
+    /// Extracts the theme information destructively. This will encode all of the serialized data into an `egui::Context` ready format.
+    ///
+    /// # Important
+    /// The theme will no longer be usable after extraction and will move the `Style` and `FontDefinitions` data for use.
+    ///
+    /// Style and font data should be managed by your application after extraction.
     pub fn extract(mut self) -> (Style, FontDefinitions) {
         // This is a workaround since the font_data is not automatically serialized.
         // If the keys are not found in the font data, we need to add them before allowing the data to be extracted

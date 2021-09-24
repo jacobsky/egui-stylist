@@ -3,4 +3,4 @@
 #![warn(clippy::all, rust_2018_idioms)]
 
 mod views;
-pub use views::{Preview, StylistFileDialog, StylistState};
+pub use views::{StylistFileDialog, StylistFileDialogFunction, StylistState};

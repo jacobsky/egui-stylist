@@ -10,14 +10,15 @@ mod preview;
 mod shape;
 mod spacing;
 
-pub use preview::Preview;
+use preview::Preview;
 
 use fonts::FontViewState;
 
-type StylistFileDialogFunction =
+/// StylistFileDialogFunction is a function callback that allows the `StylistState` to open a native filedialog and get file paths for egui.
+pub type StylistFileDialogFunction =
     Box<dyn Fn(StylistFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>;
 
-/// This is used to allow the function intent to select what kind of File Dialog it wishes to open.
+/// This determines what kind of FileDialog is desired from within the `StylistState`
 pub enum StylistFileDialog {
     Open,
     Save,
@@ -30,7 +31,14 @@ enum StylerTab {
     Spacing,
     Shape,
 }
-/// This is the framework agnostic application state
+/// This is the framework agnostic application state that can be easily embedded directly into any `egui` integration.
+///
+/// This can easily be embedded into any existing egui application by calling `ui` from within the egui context such as follows:
+///
+/// ```
+/// egui::CentralPanel::default().show(ctx, |ui| self.state.ui(ui));
+/// ```
+
 #[derive(Serialize, Deserialize)]
 pub struct StylistState {
     current_tab: StylerTab,
@@ -62,12 +70,11 @@ impl StylistState {
             file_dialog_function: None,
         }
     }
-    /// Allow `egui` to get open a filepath from the user's perspective.
-    /// This is to allow plumbing in of custom File Dialog
+    /// Sets `file_dialog_function` with the function call that it can use to
     pub fn set_file_dialog_function(&mut self, f: StylistFileDialogFunction) {
         self.file_dialog_function = Some(f);
     }
-    /// Calls the file_dialog function and returns a path if it was found
+    /// Calls the file_dialog function and returns a path if it was found.
     pub fn file_dialog(
         &self,
         kind: StylistFileDialog,
@@ -142,6 +149,8 @@ impl StylistState {
             }
         });
     }
+    /// Creates and displays the Stylist UI.
+    /// This can be used to embed the Stylist into any application that supports it.
     pub fn ui(&mut self, ui: &mut Ui) {
         // Get the tab ui
         self.tab_menu_ui(ui);
