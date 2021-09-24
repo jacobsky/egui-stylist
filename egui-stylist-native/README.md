@@ -1,6 +1,6 @@
-# egui-stylist: An embeddable application for creating egui-themes
-[![Latest version](https://img.shields.io/crates/v/egui-stylist.svg)](https://crates.io/crates/egui-stylist)
-[![Documentation](https://docs.rs/egui-stylist/badge.svg)](https://docs.rs/egui-stylist)
+# egui-stylist-native: A native application for egui projects.
+[![Latest version](https://img.shields.io/crates/v/egui-stylist-native.svg)](https://crates.io/crates/egui-stylist-native)
+[![Documentation](https://docs.rs/egui-stylist-native/badge.svg)](https://docs.rs/egui-stylist-native)
 ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
 This is the crate that can be used to run egui stylist natively on any of the supported platforms.

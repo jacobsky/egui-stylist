@@ -35,8 +35,9 @@ enum StylerTab {
 ///
 /// This can easily be embedded into any existing egui application by calling `ui` from within the egui context such as follows:
 ///
-/// ```
-/// egui::CentralPanel::default().show(ctx, |ui| self.state.ui(ui));
+/// ```ignore
+/// let state = StylistState::default():
+/// egui::CentralPanel::default().show(ctx, |ui| state.ui(ui));
 /// ```
 
 #[derive(Serialize, Deserialize)]
