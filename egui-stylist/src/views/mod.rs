@@ -128,7 +128,8 @@ impl StylistState {
             {
                 if self.preview_fonts {
                     ui.ctx().set_fonts(self.font_definitions.clone());
-                    ui.ctx().set_pixels_per_point(self.font_view_state.pixels_per_point);
+                    ui.ctx()
+                        .set_pixels_per_point(self.font_view_state.pixels_per_point);
                 } else {
                     ui.ctx().set_fonts(FontDefinitions::default());
                     ui.ctx().set_pixels_per_point(1f32);

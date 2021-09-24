@@ -17,7 +17,7 @@ pub struct FontViewState {
     to_add_name: String,
     to_add_path: String,
     to_delete: Vec<String>,
-    pub (crate) pixels_per_point: f32,
+    pub(crate) pixels_per_point: f32,
 }
 
 impl Default for FontViewState {
@@ -169,7 +169,11 @@ pub fn fonts_view(
         .show(ui, |ui| {
             Grid::new("_general_settings").show(ui, |ui| {
                 ui.label("Pixels Per Point");
-                DragValue::new(&mut state.pixels_per_point).clamp_range(0.001..=4.0).min_decimals(2).max_decimals(3).ui(ui);
+                DragValue::new(&mut state.pixels_per_point)
+                    .clamp_range(0.001..=4.0)
+                    .min_decimals(2)
+                    .max_decimals(3)
+                    .ui(ui);
                 ui.end_row();
 
                 ui.label("Body Text Style");
