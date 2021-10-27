@@ -6,17 +6,17 @@ use std::io::Read;
 use std::io::Write;
 use std::path::PathBuf;
 
-fn open_error_window(ctx: &egui::CtxRef, title: &str, text: &str, open: &mut bool) {
-    let window = egui::Window::new(title.to_owned())
-        .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::new(0.0, 0.0))
-        .auto_sized()
-        .collapsible(false)
-        .scroll(false)
-        .open(open);
-    window.show(ctx, |ui| {
-        ui.colored_label(egui::Color32::RED, text);
-    });
-}
+// fn open_error_window(ctx: &egui::CtxRef, title: &str, text: &str, open: &mut bool) {
+//     let window = egui::Window::new(title.to_owned())
+//         .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::new(0.0, 0.0))
+//         .auto_sized()
+//         .collapsible(false)
+//         .vscroll(false)
+//         .open(open);
+//     window.show(ctx, |ui| {
+//         ui.colored_label(egui::Color32::RED, text);
+//     });
+// }
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
@@ -96,6 +96,7 @@ impl epi::App for StylistApp {
         _frame: &mut epi::Frame<'_>,
         storage: Option<&dyn epi::Storage>,
     ) {
+        #[cfg(feature = "persistence")]
         if let Some(storage) = storage {
             *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
         }
@@ -112,12 +113,6 @@ impl epi::App for StylistApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
-        // let Self { label, value } = self;
-
-        // Examples of how to create different panels and windows.
-        // Pick whichever suits you.
-        // Tip: a good default choice is to just keep the `CentralPanel`.
-        // For inspiration and more examples, go to https://emilk.github.io/egui
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
@@ -208,11 +203,5 @@ impl epi::App for StylistApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| self.state.ui(ui));
-        open_error_window(
-            ctx,
-            "Error",
-            self.error_msg.as_str(),
-            &mut self.show_error_window,
-        );
     }
 }

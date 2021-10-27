@@ -3,7 +3,7 @@ use std::io::Read;
 use std::path::Path;
 
 const DEFAULT_FONTS: [&str; 4] = [
-    "ProggyClean",
+    "Hack",
     "Ubuntu-Light",
     "NotoEmoji-Regular",
     "emoji-icon-font",
@@ -83,9 +83,7 @@ fn add_font(
                     .contains_key(state.to_add_name.as_str()))
                 && path.is_file()
         };
-        if Button::new("Add font to theme")
-            .enabled(enabled)
-            .ui(ui)
+        if ui.add_enabled(enabled, Button::new("Add font to theme"))
             .clicked()
         {
             use std::fs::File;

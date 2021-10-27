@@ -2,6 +2,8 @@
 #![cfg_attr(not(debug_assertions), deny(warnings))] // Forbid warnings in release builds
 #![warn(clippy::all, rust_2018_idioms)]
 
+pub mod migrations;
+
 use egui::{FontDefinitions, Style};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -12,7 +14,7 @@ use std::collections::BTreeMap;
 const CURRENT_VERSION: u32 = 0u32;
 
 const DEFAULT_FONTS: [&str; 4] = [
-    "ProggyClean",
+    "Hack",
     "Ubuntu-Light",
     "NotoEmoji-Regular",
     "emoji-icon-font",
@@ -67,16 +69,24 @@ impl EguiTheme {
     ///
     /// Style and font data should be managed by your application after extraction.
     pub fn extract(mut self) -> (Style, FontDefinitions) {
-        // This is a workaround since the font_data is not automatically serialized.
-        // If the keys are not found in the font data, we need to add them before allowing the data to be extracted
-        for (key, value) in self.font_data.iter() {
-            if !self.font_definitions.font_data.contains_key(key) {
-                let data = base64::decode(value).expect("this should work");
-                self.font_definitions
-                    .font_data
-                    .insert(key.to_owned(), std::borrow::Cow::Owned(data));
+        // Allows automatic migrations to be performed.
+        if cfg!(feature = "migrate_14_to_15") {
+            println!("migrate egui 14 -> 15!");
+            self = migrations::migration_from_14_to_15(self);
+        } else {
+            // This is a workaround since the font_data is not automatically serialized.
+            // If the keys are not found in the font data, we need to add them before allowing the data to be extracted
+            for (key, value) in self.font_data.iter() {
+                if !self.font_definitions.font_data.contains_key(key) && !DEFAULT_FONTS.contains(&key.as_str()) {
+                    let data = base64::decode(value).expect("this should work");
+                    self.font_definitions
+                        .font_data
+                        .insert(key.to_owned(), std::borrow::Cow::Owned(data));
+                }
             }
         }
+        
+
         (self.style, self.font_definitions)
     }
 }

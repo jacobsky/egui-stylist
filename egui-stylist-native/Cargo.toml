@@ -21,19 +21,18 @@ path = "src/main.rs"
 # crate-type = ["cdylib"]
 
 [dependencies]
-egui-theme = { path = "../egui-theme"}
+egui-theme = { path = "../egui-theme", features = ["migrate_14_to_15"] }
 egui-stylist = { path = "../egui-stylist"}
 # Gives us egui, epi and web+native backends
-eframe = "0.14.0"
+eframe = "0.15.0"
 # Required for font serialization
 base64 = "0.13.0" 
-rfd = "0.4.4"
-ron = "0.6.4"
-serde = { version = "1", features = ["derive"], optional = true }
+rfd = "0.5.1"
+ron = "0.7.0"
+serde = { version = "1", features = ["derive"] }
 futures = "0.3"
 
 [features]
-default = ["persistence"]
-http = ["eframe/http"] # Enable if you want to do http requests
-persistence = ["eframe/persistence", "serde"] # Enable if you want to persist app state on shutdown
+default = []
+persistence = ["eframe/persistence"] # Enable if you want to persist app state on shutdown
 

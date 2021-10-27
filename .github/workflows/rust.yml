@@ -39,21 +39,22 @@ jobs:
           command: check
           args: --all-features
   # WASM is temporarily unsupported until file exporting can be fixed.      
-  # check_wasm:
-  #   name: Check wasm32
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
-  #     - run: rustup target add wasm32-unknown-unknown
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: check
-  #         args: --all-features --lib --target wasm32-unknown-unknown
+  check_wasm:
+    name: Check wasm32
+    runs-on: ubuntu-latest
+    steps:
+      continue-on-error: true
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup target add wasm32-unknown-unknown
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --all-features --lib --target wasm32-unknown-unknown
 
   test:
     name: Test Suite
@@ -102,3 +103,19 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
+
+  publish_dry_run:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup component add clippy; sudo apt-get update; sudo apt-get install libgtk-3-dev
+      - uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --dry-run

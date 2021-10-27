@@ -15,8 +15,11 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # This requires egui to work
-egui = { version = "0.14.2", features = ["persistence"]}
+egui = { version = "0.15.0", features = ["serialize"]}
 # This is for adding the font data to the code
 base64 = "0.13.0" 
 # This is used for serialization
 serde = { version = "1", features = ["derive"] }
+
+[features]
+migrate_14_to_15 = []

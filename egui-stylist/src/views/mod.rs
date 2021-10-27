@@ -159,7 +159,7 @@ impl StylistState {
             SidePanel::left("_stylist_panel")
                 .width_range(300.0..=900.0)
                 .show_inside(ui, |ui| {
-                    ScrollArea::auto_sized().show(ui, |ui| {
+                    ScrollArea::vertical().show(ui, |ui| {
                         // Show the content views.
                         match self.current_tab {
                             StylerTab::Colors => colors::colors_view(&mut self.style, ui),
@@ -178,7 +178,7 @@ impl StylistState {
         }
         if self.show_preview {
             CentralPanel::default().show_inside(ui, |ui| {
-                ScrollArea::auto_sized().show(ui, |ui| {
+                ScrollArea::vertical().show(ui, |ui| {
                     self.preview.set_style(self.style.clone());
                     self.preview.show(ui);
                 });

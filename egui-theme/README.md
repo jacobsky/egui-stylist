@@ -22,3 +22,7 @@ let (style, font_definitions) = theme.extract();
 ```
 
 After this point you can set the style and font definitions using [`egui::Context::set_style`](https://docs.rs/egui/0.14.2/egui/struct.Context.html#method.set_style) and [`egui::Context::set_fonts`](https://docs.rs/egui/0.14.2/egui/struct.Context.html#method.set_fonts) respectively.
+
+## Migrating old egui-themes.
+
+The migrations module contains functions that can be used to migrate old themes to new theme versions when a theme is added. Use the migration with the relevant egui theme to update the data to reflect the specific version migrations.
