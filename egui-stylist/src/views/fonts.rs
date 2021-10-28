@@ -83,7 +83,8 @@ fn add_font(
                     .contains_key(state.to_add_name.as_str()))
                 && path.is_file()
         };
-        if ui.add_enabled(enabled, Button::new("Add font to theme"))
+        if ui
+            .add_enabled(enabled, Button::new("Add font to theme"))
             .clicked()
         {
             use std::fs::File;

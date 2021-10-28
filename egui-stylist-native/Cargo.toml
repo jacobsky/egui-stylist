@@ -1,6 +1,6 @@
 [package]
 name = "egui-stylist-native"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Jacobsky"]
 edition = "2018"
 description="The native application for egui-stylist"

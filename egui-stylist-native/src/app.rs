@@ -39,6 +39,7 @@ impl Default for StylistApp {
 }
 /// Native filedialogs for Windows, Unix and MacOs via rfd crate.
 #[cfg(not(target_arch = "wasm32"))]
+#[allow(dead_code)]
 fn open_file_dialog(kind: StylistFileDialog, filter: Option<(&str, &[&str])>) -> Option<PathBuf> {
     // Option a popup to save the file to a given directory
     let path = std::env::current_dir().expect("there should be a current directory");
@@ -113,7 +114,6 @@ impl epi::App for StylistApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
-
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
             egui::menu::bar(ui, |ui| {

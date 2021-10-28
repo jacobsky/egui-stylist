@@ -68,7 +68,7 @@ impl EguiTheme {
     /// The theme will no longer be usable after extraction and will move the `Style` and `FontDefinitions` data for use.
     ///
     /// Style and font data should be managed by your application after extraction.
-    pub fn extract(mut self) -> (Style, FontDefinitions) {
+    pub fn extract(mut self) -> (egui::style::Style, egui::FontDefinitions) {
         // Allows automatic migrations to be performed.
         if cfg!(feature = "migrate_14_to_15") {
             println!("migrate egui 14 -> 15!");
@@ -77,7 +77,9 @@ impl EguiTheme {
             // This is a workaround since the font_data is not automatically serialized.
             // If the keys are not found in the font data, we need to add them before allowing the data to be extracted
             for (key, value) in self.font_data.iter() {
-                if !self.font_definitions.font_data.contains_key(key) && !DEFAULT_FONTS.contains(&key.as_str()) {
+                if !self.font_definitions.font_data.contains_key(key)
+                    && !DEFAULT_FONTS.contains(&key.as_str())
+                {
                     let data = base64::decode(value).expect("this should work");
                     self.font_definitions
                         .font_data
@@ -85,7 +87,6 @@ impl EguiTheme {
                 }
             }
         }
-        
 
         (self.style, self.font_definitions)
     }

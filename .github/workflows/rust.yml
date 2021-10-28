@@ -42,8 +42,8 @@ jobs:
   check_wasm:
     name: Check wasm32
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
-      continue-on-error: true
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
