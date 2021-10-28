@@ -103,19 +103,3 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
-
-  publish_dry_run:
-    name: Publish
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add clippy; sudo apt-get update; sudo apt-get install libgtk-3-dev
-      - uses: actions-rs/cargo@v1
-        with:
-          command: publish
-          args: --dry-run

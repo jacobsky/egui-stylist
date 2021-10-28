@@ -1,4 +1,4 @@
-use crate::{StylistFileDialog, StylistState};
+use egui_stylist::{StylistFileDialog, StylistState};
 use eframe::{egui, epi};
 use std::fs::File;
 use std::io::Read;
