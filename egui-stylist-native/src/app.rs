@@ -1,5 +1,5 @@
-use egui_stylist::{StylistFileDialog, StylistState};
 use eframe::{egui, epi};
+use egui_stylist::{StylistFileDialog, StylistState};
 use std::fs::File;
 use std::io::Read;
 #[cfg(not(target_arch = "wasm32"))]
