@@ -1,3 +1,4 @@
+use eframe::egui::Style;
 use eframe::{egui, epi};
 use egui_stylist::{StylistFileDialog, StylistState};
 use std::fs::File;
@@ -187,8 +188,9 @@ impl epi::App for StylistApp {
                         let theme = self.state.export_theme();
                         // The font_data is only used for serialization
                         let (style, font_definitions) = theme.extract();
+                        let style: Style = style.into();
                         ctx.set_style(style);
-                        ctx.set_fonts(font_definitions);
+                        ctx.set_fonts(font_definitions.into());
                     }
                     if ui.button("Clear settings").clicked() {
                         self.state = StylistState::default();

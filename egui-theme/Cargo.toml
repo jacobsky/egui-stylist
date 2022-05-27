@@ -1,8 +1,8 @@
 [package]
 name = "egui-theme"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Jacobsky"]
-edition = "2018"
+edition = "2021"
 description="A standalone serializable theme container for use with Egui."
 license="MIT"
 readme = "README.md"
@@ -15,11 +15,10 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # This requires egui to work
-egui = { version = "0.15.0", features = ["serialize"]}
-# This is for adding the font data to the code
-base64 = "0.13.0" 
+egui = { version = "0", features = ["serialize"]}
 # This is used for serialization
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
-[features]
-migrate_14_to_15 = []
+[build-dependencies]
+cargo-lock = "8"

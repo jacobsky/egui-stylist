@@ -1,6 +1,6 @@
 [package]
 name = "egui-stylist"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Jacobsky"]
 edition = "2018"
 description="An embeddable theme editor for egui."
@@ -15,9 +15,9 @@ path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
-egui-theme = { version = "0.1.1", path = "../egui-theme"}
+egui-theme = { version = "0", path = "../egui-theme"}
 # Gives us egui, epi and web+native backends
-egui = { version = "0.15.0", features = ["serialize"]}
+egui = { version = "*", features = ["serialize"]}
 # Required for font serialization
 base64 = "0.13.0"
 # Required for serialization

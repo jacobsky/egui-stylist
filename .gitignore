@@ -1,2 +1,4 @@
 /target
 Cargo.lock
+# This is created at build-time and should not be source controlled.
+generated

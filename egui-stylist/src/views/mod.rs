@@ -190,7 +190,7 @@ impl StylistState {
     }
     pub fn import_theme(&mut self, theme: EguiTheme) {
         let (style, font_definitions) = theme.extract();
-        self.style = style;
-        self.font_definitions = font_definitions;
+        self.style = style.into();
+        self.font_definitions = font_definitions.into();
     }
 }
