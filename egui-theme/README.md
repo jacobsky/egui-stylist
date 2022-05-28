@@ -5,7 +5,7 @@
 
 `egui-theme` defines a common interface for serializing and storing [egui](https://crates.io/crates/egui)'s style and font data for use between applications. The goal is to allow users of `egui` to easily create and share themes between relevant applications.
 
-`egui-theme` makes no assumptions about serialization format and will support any [serde](https://crates.io/crates/serde)).
+`egui-theme` is an intermediate format that is using [serde_json](https://lib.rs/crates/serde_json) to create this intermediate format.
 
 ## How to use
 
@@ -23,6 +23,6 @@ let (style, font_definitions) = theme.extract();
 
 After this point you can set the style and font definitions using [`egui::Context::set_style`](https://docs.rs/egui/0.14.2/egui/struct.Context.html#method.set_style) and [`egui::Context::set_fonts`](https://docs.rs/egui/0.14.2/egui/struct.Context.html#method.set_fonts) respectively.
 
-## Migrating old egui-themes.
+## Compatibility
 
-The migrations module contains functions that can be used to migrate old themes to new theme versions when a theme is added. Use the migration with the relevant egui theme to update the data to reflect the specific version migrations.
+Given development resources, only the latest version of egui is supported. This library will not be maintaining "migration scripts" to migrate previous themes of egui, but it old egui themes will still provide a best effort to load in. "Best Effort" means that deserializing an old egui theme will load as much compatible data as possible and _not_ emit errors.

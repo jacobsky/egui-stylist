@@ -1,5 +1,5 @@
 //! This is modified from the widget gallery code available at the [egui repository](https://github.com/emilk/egui/blob/master/egui_demo_lib/src/apps/demo/widget_gallery.rs)
-use egui::{TextStyle, Widget};
+use egui::{TextStyle, Widget, RichText, Label, Ui};
 
 #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 enum Enum {
@@ -62,63 +62,65 @@ impl WidgetGallery {
             }
         });
     }
-    fn font_selector(ui: &mut egui::Ui) {
-        let mut proportional_fonts = ui
-            .ctx()
-            .fonts()
-            .definitions()
-            .fonts_for_family
-            .get(&egui::FontFamily::Proportional)
-            .expect("this should exist")
-            .clone();
-        let mut current_font = 0;
-        ui.add(egui::Label::new("Proportional Font"));
-        egui::ComboBox::from_id_source("_proportional_select")
-            .selected_text(&proportional_fonts[0])
-            .show_ui(ui, |ui| {
-                for (i, name) in proportional_fonts.iter().enumerate() {
-                    ui.selectable_value(&mut current_font, i, name);
-                }
-            });
 
-        if current_font > 0 {
-            let font = proportional_fonts.remove(current_font);
-            proportional_fonts.insert(0, font);
-            let mut fonts = ui.ctx().fonts().definitions().clone();
-            fonts
-                .fonts_for_family
-                .insert(egui::FontFamily::Proportional, proportional_fonts);
-            ui.ctx().set_fonts(fonts);
-        }
-        ui.end_row();
+    // TODO: Add this back in
+    fn font_selector(ui: &mut egui::Ui) {            
+        // let mut proportional_fonts = ui
+        //     .ctx()
+        //     .fonts()
+        //     .definitions()
+        //     .fonts_for_family
+        //     .get(&egui::FontFamily::Proportional)
+        //     .expect("this should exist")
+        //     .clone();
+        // let mut current_font = 0;
+        // ui.add(egui::Label::new("Proportional Font"));
+        // egui::ComboBox::from_id_source("_proportional_select")
+        //     .selected_text(&proportional_fonts[0])
+        //     .show_ui(ui, |ui| {
+        //         for (i, name) in proportional_fonts.iter().enumerate() {
+        //             ui.selectable_value(&mut current_font, i, name);
+        //         }
+        //     });
 
-        let mut monospace_fonts = ui
-            .ctx()
-            .fonts()
-            .definitions()
-            .fonts_for_family
-            .get(&egui::FontFamily::Monospace)
-            .expect("this should exist")
-            .clone();
-        let mut current_font = 0;
-        ui.add(egui::Label::new("Monospace Font"));
-        egui::ComboBox::from_id_source("_monospace_select")
-            .selected_text(&monospace_fonts[0])
-            .show_ui(ui, |ui| {
-                for (i, name) in monospace_fonts.iter().enumerate() {
-                    ui.selectable_value(&mut current_font, i, name);
-                }
-            });
-        if current_font > 0 {
-            let font = monospace_fonts.remove(current_font);
-            monospace_fonts.insert(0, font);
-            let mut fonts = ui.ctx().fonts().definitions().clone();
-            fonts
-                .fonts_for_family
-                .insert(egui::FontFamily::Monospace, monospace_fonts);
-            ui.ctx().set_fonts(fonts);
-        }
-        ui.end_row();
+        // if current_font > 0 {
+        //     let font = proportional_fonts.remove(current_font);
+        //     proportional_fonts.insert(0, font);
+        //     let mut fonts = ui.ctx().fonts().definitions().clone();
+        //     fonts
+        //         .fonts_for_family
+        //         .insert(egui::FontFamily::Proportional, proportional_fonts);
+        //     ui.ctx().set_fonts(fonts);
+        // }
+        // ui.end_row();
+
+        // let mut monospace_fonts = ui
+        //     .ctx()
+        //     .fonts()
+        //     .definitions()
+        //     .fonts_for_family
+        //     .get(&egui::FontFamily::Monospace)
+        //     .expect("this should exist")
+        //     .clone();
+        // let mut current_font = 0;
+        // ui.add(egui::Label::new("Monospace Font"));
+        // egui::ComboBox::from_id_source("_monospace_select")
+        //     .selected_text(&monospace_fonts[0])
+        //     .show_ui(ui, |ui| {
+        //         for (i, name) in monospace_fonts.iter().enumerate() {
+        //             ui.selectable_value(&mut current_font, i, name);
+        //         }
+        //     });
+        // if current_font > 0 {
+        //     let font = monospace_fonts.remove(current_font);
+        //     monospace_fonts.insert(0, font);
+        //     let mut fonts = ui.ctx().fonts().definitions().clone();
+        //     fonts
+        //         .fonts_for_family
+        //         .insert(egui::FontFamily::Monospace, monospace_fonts);
+        //     ui.ctx().set_fonts(fonts);
+        // }
+        // ui.end_row();
     }
     fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
         let Self {
@@ -136,31 +138,30 @@ impl WidgetGallery {
         ui.label("Welcome to the widget gallery!");
         ui.end_row();
         WidgetGallery::font_selector(ui);
-        egui::widgets::Label::new("Monospace Label").ui(ui);
-        egui::widgets::Label::new("This is using the Monospace TextStyle")
-            .text_style(TextStyle::Monospace)
-            .ui(ui);
+        Label::new("Monospace Label").ui(ui);
+        Label::new(
+            RichText::new("This is using Monospace TextStyle").monospace()
+        ).ui(ui);
         ui.end_row();
-        egui::widgets::Label::new("Small Label").ui(ui);
-        egui::widgets::Label::new("This is using the Small TextStyle")
-            .text_style(TextStyle::Small)
-            .ui(ui);
+
+        Label::new("Small Label").ui(ui);
+        Label::new(RichText::new("This is using the Small TextStyle").small()).ui(ui);
         ui.end_row();
-        egui::widgets::Label::new("Body Label").ui(ui);
-        egui::widgets::Label::new("This is using the Body TextStyle")
-            .text_style(TextStyle::Body)
-            .ui(ui);
+
+        Label::new("Body Label").ui(ui);
+        Label::new(RichText::new("This is using the Body TextStyle").text_style(TextStyle::Body)).ui(ui);
         ui.end_row();
-        egui::widgets::Label::new("Heading Label").ui(ui);
-        egui::widgets::Label::new("This is using the Heading TextStyle")
-            .text_style(TextStyle::Heading)
-            .ui(ui);
+
+        Label::new("Heading Label").ui(ui);
+        Label::new(RichText::new("This is using the Heading TextStyle").heading()).ui(ui);
         ui.end_row();
-        egui::widgets::Label::new("Button Label").ui(ui);
-        egui::widgets::Label::new("This is using the Button TextStyle")
-            .text_style(TextStyle::Button)
-            .ui(ui);
+
+        Label::new("Button Label").ui(ui);
+        Label::new(
+            RichText::new("This is using the Button TextStyle").text_style(TextStyle::Button)
+        ).ui(ui);
         ui.end_row();
+
         ui.label("Hyperlink");
         use egui::special_emojis::GITHUB;
         ui.hyperlink_to(
@@ -234,14 +235,14 @@ impl WidgetGallery {
         ui.end_row();
 
         ui.label("Image");
-        ui.image(egui::TextureId::Egui, [24.0, 16.0])
-            .on_hover_text("The egui font texture was the convenient choice to show here.");
+        ui.image(egui::TextureId::Managed(0), [24.0, 16.0])
+            .on_hover_text("The egui font texture was the most convenient choice to show here.");
         ui.end_row();
 
         ui.label("ImageButton");
         if ui
-            .add(egui::ImageButton::new(egui::TextureId::Egui, [24.0, 16.0]))
-            .on_hover_text("The egui font texture was the convenient choice to show here.")
+            .add(egui::ImageButton::new(egui::TextureId::Managed(0), [24.0, 16.0]))
+            .on_hover_text("The egui font texture was the most convenient choice to show here.")
             .clicked()
         {
             *boolean = !*boolean;
@@ -264,12 +265,12 @@ impl WidgetGallery {
         ui.end_row();
 
         ui.label("Plot");
-        ui.add(example_plot());
+        example_plot(ui);
         ui.end_row();
     }
 }
 
-fn example_plot() -> egui::plot::Plot {
+fn example_plot(ui: &mut egui::Ui) -> egui::Response {
     use egui::plot::{Line, Plot, Value, Values};
     let n = 128;
     let line = Line::new(Values::from_values_iter((0..=n).map(|i| {
@@ -278,7 +279,7 @@ fn example_plot() -> egui::plot::Plot {
         Value::new(x, x.sin())
     })));
     Plot::new("example_plot")
-        .line(line)
         .height(32.0)
-        .data_aspect(1.0)
+        .data_aspect(1.0).show(ui, |plot_ui| {plot_ui.line(line)})
+        .response
 }

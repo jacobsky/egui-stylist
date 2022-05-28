@@ -18,11 +18,14 @@ macro_rules! serialize_properties {
     };
 }
 
+// TODO: Fix this so that it does not assign to property if it cannot extract it.
 macro_rules! deserialize_property {
     ($collection:expr, $property:expr) => {
         $collection.get(&stringify!($property).to_owned())
             .map(|value| {
-                    $property = serde_json::from_value(value.to_owned()).unwrap_or_default();
+                    if let Ok(deserialized_value) = serde_json::from_value(value.to_owned()) {
+                        $property = deserialized_value;
+                    }
                 }
             );
     };
@@ -36,18 +39,21 @@ macro_rules! deserialize_properties {
     };
 }
 
+/// TODO: Comment this function
 pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     let mut hash_map = HashMap::new();
     serialize_properties!(
         hash_map,
-        style.wrap,
-        style.explanation_tooltips,
-        style.body_text_style,
         style.override_text_style,
-        style.animation_time,
+        style.override_font_id,
+        style.text_styles,
         style.wrap,
+
+        style.animation_time,
+        style.explanation_tooltips,
+
         style.spacing.item_spacing,
-        style.spacing.window_padding,
+        style.spacing.window_margin,
         style.spacing.button_padding,
         style.spacing.indent,
         style.spacing.interact_size,
@@ -59,6 +65,7 @@ pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
         style.spacing.indent_ends_with_horizontal_line,
         style.spacing.combo_height,
         style.spacing.scroll_bar_width,
+
         style.interaction.resize_grab_radius_side,
         style.interaction.resize_grab_radius_corner,
         style.interaction.show_tooltips_only_when_still,
@@ -70,7 +77,7 @@ pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
         style.visuals.faint_bg_color,
         style.visuals.extreme_bg_color,
         style.visuals.code_bg_color,
-        style.visuals.window_corner_radius,
+        style.visuals.window_rounding,
         style.visuals.window_shadow,
         style.visuals.popup_shadow,
         style.visuals.resize_corner_size,
@@ -84,27 +91,22 @@ pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     hash_map
 }
 
+
+/// TODO: Comment this function
 pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
     let mut style = Style::default();
-    // Text Style does not have a default, so it has to be implemented manually instead of being macroed.
-    hash_map.get(&stringify!(style.body_text_style).to_owned())
-        .map(|value| {
-                style.body_text_style = serde_json::from_value(value.to_owned()).unwrap_or(egui::TextStyle::Body);
-            }
-        );
-    
-    // For each property, we need to attempt to extract the data
-    // Then we need to deserialize it and assign it to the property in question.]
-    // This needs to be done for each property that we care about.
     deserialize_properties!(
         hash_map, 
-        style.wrap,
         style.override_text_style,
-        style.explanation_tooltips,
-        style.animation_time,
+        style.override_font_id,
+        style.text_styles,
         style.wrap,
+
+        style.animation_time,
+        style.explanation_tooltips,
+
         style.spacing.item_spacing,
-        style.spacing.window_padding,
+        style.spacing.window_margin,
         style.spacing.button_padding,
         style.spacing.indent,
         style.spacing.interact_size,
@@ -116,6 +118,7 @@ pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
         style.spacing.indent_ends_with_horizontal_line,
         style.spacing.combo_height,
         style.spacing.scroll_bar_width,
+
         style.interaction.resize_grab_radius_side,
         style.interaction.resize_grab_radius_corner,
         style.interaction.show_tooltips_only_when_still,
@@ -127,7 +130,7 @@ pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
         style.visuals.faint_bg_color,
         style.visuals.extreme_bg_color,
         style.visuals.code_bg_color,
-        style.visuals.window_corner_radius,
+        style.visuals.window_rounding,
         style.visuals.window_shadow,
         style.visuals.popup_shadow,
         style.visuals.resize_corner_size,

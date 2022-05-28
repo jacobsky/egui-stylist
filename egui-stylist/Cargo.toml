@@ -16,8 +16,9 @@ crate-type = ["rlib"]
 
 [dependencies]
 egui-theme = { version = "0", path = "../egui-theme"}
-# Gives us egui, epi and web+native backends
-egui = { version = "*", features = ["serialize"]}
+egui = { version = "0.18", features = ["serde"]}
+# for the preview
+egui_demo_lib = "0.18"
 # Required for font serialization
 base64 = "0.13.0"
 # Required for serialization

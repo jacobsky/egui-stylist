@@ -1,0 +1,15 @@
+# egui-stylist Change Log
+
+## 0.2.0
+
+Supports egui 0.18.x
+
+- Complete overhaul of the egui-theme format.
+  - New format works and an intermediate format to allow egui-themes to be used in later versions of egui.
+- Stylist updated to include [egui_demo_lib](https://crates.io/crates/egui_demo_lib) as a previewer
+
+First proper changelog. This release is a major refactor of
+
+## 0.1.1 and prior
+
+Initial versions of this crate that are incompatible with anything other than egui 0.14, these should not be used.

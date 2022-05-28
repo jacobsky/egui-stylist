@@ -24,7 +24,6 @@ impl Preview {
     pub fn show(&mut self, ui: &mut Ui) {
         ui.heading("Preview");
         ui.set_style(self.style.clone());
-
         self.gallery.ui(ui);
     }
 }

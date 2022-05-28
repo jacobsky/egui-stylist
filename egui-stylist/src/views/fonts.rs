@@ -2,6 +2,9 @@ use super::StylistFileDialog;
 use std::io::Read;
 use std::path::Path;
 
+use egui::FontData;
+
+// TODO: Reference egui-theme which is where this info should be stored.
 const DEFAULT_FONTS: [&str; 4] = [
     "Hack",
     "Ubuntu-Light",
@@ -96,7 +99,10 @@ fn add_font(
                 if reader.read_to_end(&mut contents).is_ok() {
                     font_definitions
                         .font_data
-                        .insert(state.to_add_name.clone(), contents.into());
+                        .insert(
+                            state.to_add_name.clone(), 
+                            FontData::from_owned(contents)
+                    );
                 }
                 // TODO: Give some sort of error popup or modal if this fails
             }
@@ -116,38 +122,38 @@ fn font_priority(
         Up,
         Down,
     }
-
-    let mut fonts = font_definitions
-        .fonts_for_family
-        .get(&family)
-        .expect("this should be valid")
-        .clone();
-    let mut swap = None;
-    Grid::new(id).num_columns(3).show(ui, |ui| {
-        for (i, name) in fonts.iter().enumerate() {
-            ui.label(name);
-            if i > 0 {
-                if ui.button("increase").clicked() {
-                    swap = Some((Direction::Up, i));
-                }
-            } else {
-                ui.label("");
-            }
-            if i < fonts.len() - 1 && ui.button("decrease").clicked() {
-                swap = Some((Direction::Down, i));
-            }
-            ui.end_row();
-        }
-    });
-    if let Some((dir, index)) = swap {
-        let new_index = match dir {
-            Direction::Up => index - 1,
-            Direction::Down => index + 1,
-        };
-        let font = fonts.remove(index);
-        fonts.insert(new_index, font);
-        font_definitions.fonts_for_family.insert(family, fonts);
-    }
+    // TODO: Implement this
+    // let mut fonts = font_definitions
+    //     .fonts_for_family
+    //     .get(&family)
+    //     .expect("this should be valid")
+    //     .clone();
+    // let mut swap = None;
+    // Grid::new(id).num_columns(3).show(ui, |ui| {
+    //     for (i, name) in fonts.iter().enumerate() {
+    //         ui.label(name);
+    //         if i > 0 {
+    //             if ui.button("increase").clicked() {
+    //                 swap = Some((Direction::Up, i));
+    //             }
+    //         } else {
+    //             ui.label("");
+    //         }
+    //         if i < fonts.len() - 1 && ui.button("decrease").clicked() {
+    //             swap = Some((Direction::Down, i));
+    //         }
+    //         ui.end_row();
+    //     }
+    // });
+    // if let Some((dir, index)) = swap {
+    //     let new_index = match dir {
+    //         Direction::Up => index - 1,
+    //         Direction::Down => index + 1,
+    //     };
+    //     let font = fonts.remove(index);
+    //     fonts.insert(new_index, font);
+    //     font_definitions.fonts_for_family.insert(family, fonts);
+    // }
 }
 
 /// Displays the current font definition from the core app widget and displays the ui to detect any addition changes.
@@ -169,7 +175,7 @@ pub fn fonts_view(
             Grid::new("_general_settings").show(ui, |ui| {
                 ui.label("Pixels Per Point");
                 DragValue::new(&mut state.pixels_per_point)
-                    .clamp_range(0.001..=4.0)
+                    .clamp_range(0.001f32..=4.0f32)
                     .min_decimals(2)
                     .max_decimals(3)
                     .ui(ui);
@@ -177,23 +183,34 @@ pub fn fonts_view(
 
                 ui.label("Body Text Style");
                 ComboBox::from_id_source("_body_text_style")
-                    .selected_text(format!("{:?}", &style.body_text_style))
+                    .selected_text(format!("{:?}", &style.override_text_style))
                     .show_ui(ui, |ui| {
                         ui.selectable_value(
-                            &mut style.body_text_style,
-                            TextStyle::Heading,
+                            &mut style.override_text_style,
+                            None,
+                            "None"
+                        );
+                        ui.selectable_value(
+                            &mut style.override_text_style,
+                            Some(TextStyle::Heading),
                             "Heading",
                         );
-                        ui.selectable_value(&mut style.body_text_style, TextStyle::Body, "Body");
-                        ui.selectable_value(&mut style.body_text_style, TextStyle::Small, "Small");
                         ui.selectable_value(
-                            &mut style.body_text_style,
-                            TextStyle::Button,
+                            &mut style.override_text_style,
+                            Some(TextStyle::Body), "Body"
+                        );
+                        ui.selectable_value(
+                            &mut style.override_text_style,
+                            Some(TextStyle::Small), "Small"
+                        );
+                        ui.selectable_value(
+                            &mut style.override_text_style,
+                            Some(TextStyle::Button),
                             "Button",
                         );
                         ui.selectable_value(
-                            &mut style.body_text_style,
-                            TextStyle::Monospace,
+                            &mut style.override_text_style,
+                            Some(TextStyle::Monospace),
                             "Monospace",
                         );
                     });
@@ -259,52 +276,52 @@ pub fn fonts_view(
                 ui.label("Proportional");
                 ui.label("Monospace");
                 ui.end_row();
-                for (name, _) in font_definitions.font_data.iter() {
-                    ui.label(name);
-                    let mut is_monospace = if let Some(fonts) = font_definitions
-                        .fonts_for_family
-                        .get(&egui::FontFamily::Monospace)
-                    {
-                        fonts.contains(name)
-                    } else {
-                        false
-                    };
-                    let mut is_proportional = if let Some(fonts) = font_definitions
-                        .fonts_for_family
-                        .get(&egui::FontFamily::Proportional)
-                    {
-                        fonts.contains(name)
-                    } else {
-                        false
-                    };
+                // for (name, _) in font_definitions.font_data.iter() {
+                //     ui.label(name);
+                //     let mut is_monospace = if let Some(fonts) = font_definitions
+                //         .fonts_for_family
+                //         .get(&egui::FontFamily::Monospace)
+                //     {
+                //         fonts.contains(name)
+                //     } else {
+                //         false
+                //     };
+                //     let mut is_proportional = if let Some(fonts) = font_definitions
+                //         .fonts_for_family
+                //         .get(&egui::FontFamily::Proportional)
+                //     {
+                //         fonts.contains(name)
+                //     } else {
+                //         false
+                //     };
 
-                    let response = ui.add(Checkbox::new(&mut is_proportional, "Proportional"));
-                    if response.clicked() {
-                        let fonts = font_definitions
-                            .fonts_for_family
-                            .get_mut(&egui::FontFamily::Proportional)
-                            .expect("this should exist");
-                        if is_proportional {
-                            fonts.push(name.to_owned());
-                        } else if let Some(idx) = fonts.iter().position(|a| a.eq(name)) {
-                            fonts.remove(idx);
-                        }
-                    }
-                    let response = ui.add(Checkbox::new(&mut is_monospace, "Monospace"));
-                    if response.clicked() {
-                        let fonts = font_definitions
-                            .fonts_for_family
-                            .get_mut(&egui::FontFamily::Monospace)
-                            .expect("this should exist");
-                        if is_monospace {
-                            fonts.push(name.to_owned());
-                        } else if let Some(idx) = fonts.iter().position(|a| a.eq(name)) {
-                            fonts.remove(idx);
-                        }
-                    }
+                //     let response = ui.add(Checkbox::new(&mut is_proportional, "Proportional"));
+                //     if response.clicked() {
+                //         let fonts = font_definitions
+                //             .fonts_for_family
+                //             .get_mut(&egui::FontFamily::Proportional)
+                //             .expect("this should exist");
+                //         if is_proportional {
+                //             fonts.push(name.to_owned());
+                //         } else if let Some(idx) = fonts.iter().position(|a| a.eq(name)) {
+                //             fonts.remove(idx);
+                //         }
+                //     }
+                //     let response = ui.add(Checkbox::new(&mut is_monospace, "Monospace"));
+                //     if response.clicked() {
+                //         let fonts = font_definitions
+                //             .fonts_for_family
+                //             .get_mut(&egui::FontFamily::Monospace)
+                //             .expect("this should exist");
+                //         if is_monospace {
+                //             fonts.push(name.to_owned());
+                //         } else if let Some(idx) = fonts.iter().position(|a| a.eq(name)) {
+                //             fonts.remove(idx);
+                //         }
+                //     }
 
-                    ui.end_row();
-                }
+                    // ui.end_row();
+                // }
             });
         });
     CollapsingHeader::new("Font Priority")
@@ -338,25 +355,25 @@ pub fn fonts_view(
         .default_open(true)
         .show(ui, |ui| {
             Grid::new("_families").num_columns(3).show(ui, |ui| {
-                adjust_text_style_font_family_size("Small", font_definitions, TextStyle::Small, ui);
+                adjust_text_style_for_families("Small", font_definitions, TextStyle::Small, ui);
                 ui.end_row();
-                adjust_text_style_font_family_size("Body", font_definitions, TextStyle::Body, ui);
+                adjust_text_style_for_families("Body", font_definitions, TextStyle::Body, ui);
                 ui.end_row();
-                adjust_text_style_font_family_size(
+                adjust_text_style_for_families(
                     "Heading",
                     font_definitions,
                     TextStyle::Heading,
                     ui,
                 );
                 ui.end_row();
-                adjust_text_style_font_family_size(
+                adjust_text_style_for_families(
                     "Monospace",
                     font_definitions,
                     TextStyle::Monospace,
                     ui,
                 );
                 ui.end_row();
-                adjust_text_style_font_family_size(
+                adjust_text_style_for_families(
                     "Button",
                     font_definitions,
                     TextStyle::Button,
@@ -367,29 +384,30 @@ pub fn fonts_view(
         });
 }
 
-fn adjust_text_style_font_family_size(
+fn adjust_text_style_for_families(
     label: &str,
     font_definitions: &mut FontDefinitions,
     text_style: TextStyle,
     ui: &mut Ui,
 ) {
-    let (mut text_family, mut text_size) = font_definitions
-        .family_and_size
-        .get(&text_style)
-        .map_or((FontFamily::Proportional, 12.0), |(f, s)| (*f, *s));
-    ui.label(label);
-    let dv_response = DragValue::new(&mut text_size).clamp_range(1..=100).ui(ui);
+    // TODO: Implement the text style selection
+    // let (mut text_family, mut text_size) = font_definitions
+    //     .family_and_size
+    //     .get(&text_style)
+    //     .map_or((FontFamily::Proportional, 12.0), |(f, s)| (*f, *s));
+    // ui.label(label);
+    // let dv_response = DragValue::new(&mut text_size).clamp_range(1i32..=100i32).ui(ui);
 
-    let current_family = text_family;
-    ComboBox::from_label(format!("Family for {}", label))
-        .selected_text(format!("{:?}", text_family))
-        .show_ui(ui, |ui| {
-            ui.selectable_value(&mut text_family, FontFamily::Proportional, "Proportional");
-            ui.selectable_value(&mut text_family, FontFamily::Monospace, "Monospace");
-        });
-    if dv_response.changed() || current_family.ne(&text_family) {
-        font_definitions
-            .family_and_size
-            .insert(text_style, (text_family, text_size));
-    }
+    // let current_family = text_family;
+    // ComboBox::from_label(format!("Family for {}", label))
+    //     .selected_text(format!("{:?}", text_family))
+    //     .show_ui(ui, |ui| {
+    //         ui.selectable_value(&mut text_family, FontFamily::Proportional, "Proportional");
+    //         ui.selectable_value(&mut text_family, FontFamily::Monospace, "Monospace");
+    //     });
+    // if dv_response.changed() || current_family.ne(&text_family) {
+    //     font_definitions
+    //         .family_and_size
+    //         .insert(text_style, (text_family, text_size));
+    // }
 }
