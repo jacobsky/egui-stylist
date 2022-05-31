@@ -1,145 +1,138 @@
 use std::collections::HashMap;
 use egui::Style;
 
-macro_rules! serialize_property {
-    ($collection:expr, $property:expr) => {
-        if let Ok(value) = serde_json::to_value($property.to_owned()) {
-           $collection.insert(stringify!($property).to_owned(), value); 
+macro_rules! ser {
+    ($collection:ident, $style:ident, $prop:ident) => {
+        if let Ok(value) = serde_json::to_value($style.$prop.to_owned()) {
+            $collection.insert(stringify!($prop).to_owned(), value); 
+        }
+    };
+    ($collection:ident, $style:ident, $prop:ident, $sub_prop:ident) => {
+        if let Ok(value) = serde_json::to_value($style.$prop.$sub_prop.to_owned()) {
+            $collection.insert(stringify!($prop.$sub_prop).to_owned(), value); 
         }
     };
 }
 
-
-macro_rules! serialize_properties {
-    ($collection:expr, $( $property:expr), +) => {
-        $(
-            serialize_property!($collection, $property);
-        )+
-    };
-}
-
-// TODO: Fix this so that it does not assign to property if it cannot extract it.
-macro_rules! deserialize_property {
-    ($collection:expr, $property:expr) => {
-        $collection.get(&stringify!($property).to_owned())
+macro_rules! de {
+    ($collection:ident, $style:ident, $prop:ident) => {
+        $collection.get(&stringify!($prop).to_owned())
             .map(|value| {
-                    if let Ok(deserialized_value) = serde_json::from_value(value.to_owned()) {
-                        $property = deserialized_value;
-                    }
+                if let Ok(deserialized_value) = serde_json::from_value(value.to_owned()) {
+                    $style.$prop = deserialized_value;
                 }
-            );
+            }
+        );
+    };
+    ($collection:ident, $style:ident, $prop:ident, $sub_prop:ident) => {
+        $collection.get(&stringify!($prop.$sub_prop).to_owned())
+            .map(|value| {
+                if let Ok(deserialized_value) = serde_json::from_value(value.to_owned()) {
+                    $style.$prop.$sub_prop = deserialized_value;
+                }
+            }
+        );
     };
 }
 
-macro_rules! deserialize_properties {
-    ($collection:expr, $( $property:expr), +) => {
-        $(
-            deserialize_property!($collection, $property);
-        )+
-    };
-}
-
-/// TODO: Comment this function
+/// Helper function to serialize the `egui::Style`
 pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     let mut hash_map = HashMap::new();
-    serialize_properties!(
-        hash_map,
-        style.override_text_style,
-        style.override_font_id,
-        style.text_styles,
-        style.wrap,
+    
+    ser!(hash_map, style, override_text_style); 
+    ser!(hash_map, style, override_font_id); 
+    ser!(hash_map, style, text_styles); 
+    ser!(hash_map, style, wrap); 
 
-        style.animation_time,
-        style.explanation_tooltips,
+    ser!(hash_map, style, animation_time); 
+    ser!(hash_map, style, explanation_tooltips); 
 
-        style.spacing.item_spacing,
-        style.spacing.window_margin,
-        style.spacing.button_padding,
-        style.spacing.indent,
-        style.spacing.interact_size,
-        style.spacing.slider_width,
-        style.spacing.text_edit_width,
-        style.spacing.icon_width,
-        style.spacing.icon_spacing,
-        style.spacing.tooltip_width,
-        style.spacing.indent_ends_with_horizontal_line,
-        style.spacing.combo_height,
-        style.spacing.scroll_bar_width,
+    ser!(hash_map, style, spacing, item_spacing);
+    ser!(hash_map, style, spacing, window_margin);
+    ser!(hash_map, style, spacing, button_padding);
+    ser!(hash_map, style, spacing, indent);
+    ser!(hash_map, style, spacing, interact_size);
+    ser!(hash_map, style, spacing, slider_width);
+    ser!(hash_map, style, spacing, text_edit_width);
+    ser!(hash_map, style, spacing, icon_width);
+    ser!(hash_map, style, spacing, icon_spacing);
+    ser!(hash_map, style, spacing, tooltip_width);
+    ser!(hash_map, style, spacing, indent_ends_with_horizontal_line);
+    ser!(hash_map, style, spacing, combo_height);
+    ser!(hash_map, style, spacing, scroll_bar_width);
 
-        style.interaction.resize_grab_radius_side,
-        style.interaction.resize_grab_radius_corner,
-        style.interaction.show_tooltips_only_when_still,
-        style.visuals.dark_mode,
-        style.visuals.override_text_color,
-        style.visuals.widgets,
-        style.visuals.selection,
-        style.visuals.hyperlink_color,
-        style.visuals.faint_bg_color,
-        style.visuals.extreme_bg_color,
-        style.visuals.code_bg_color,
-        style.visuals.window_rounding,
-        style.visuals.window_shadow,
-        style.visuals.popup_shadow,
-        style.visuals.resize_corner_size,
-        style.visuals.text_cursor_width,
-        style.visuals.text_cursor_preview,
-        style.visuals.clip_rect_margin,
-        style.visuals.button_frame,
-        style.visuals.collapsing_header_frame
-    );
+    ser!(hash_map, style, interaction, resize_grab_radius_side);
+    ser!(hash_map, style, interaction, resize_grab_radius_corner);
+    ser!(hash_map, style, interaction, show_tooltips_only_when_still);
+    ser!(hash_map, style, visuals, dark_mode);
+    ser!(hash_map, style, visuals, override_text_color);
+    ser!(hash_map, style, visuals, widgets);
+    ser!(hash_map, style, visuals, selection);
+    ser!(hash_map, style, visuals, hyperlink_color);
+    ser!(hash_map, style, visuals, faint_bg_color);
+    ser!(hash_map, style, visuals, extreme_bg_color);
+    ser!(hash_map, style, visuals, code_bg_color);
+    ser!(hash_map, style, visuals, window_rounding);
+    ser!(hash_map, style, visuals, window_shadow);
+    ser!(hash_map, style, visuals, popup_shadow);
+    ser!(hash_map, style, visuals, resize_corner_size);
+    ser!(hash_map, style, visuals, text_cursor_width);
+    ser!(hash_map, style, visuals, text_cursor_preview);
+    ser!(hash_map, style, visuals, clip_rect_margin);
+    ser!(hash_map, style, visuals, button_frame);
+    ser!(hash_map, style, visuals, collapsing_header_frame);
     
     hash_map
 }
 
 
-/// TODO: Comment this function
+/// Helper function to deserialize the `egui::Style`
 pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
     let mut style = Style::default();
-    deserialize_properties!(
-        hash_map, 
-        style.override_text_style,
-        style.override_font_id,
-        style.text_styles,
-        style.wrap,
+ 
+    de!(hash_map, style, override_text_style); 
+    de!(hash_map, style, override_font_id); 
+    de!(hash_map, style, text_styles); 
+    de!(hash_map, style, wrap); 
 
-        style.animation_time,
-        style.explanation_tooltips,
+    de!(hash_map, style, animation_time); 
+    de!(hash_map, style, explanation_tooltips); 
 
-        style.spacing.item_spacing,
-        style.spacing.window_margin,
-        style.spacing.button_padding,
-        style.spacing.indent,
-        style.spacing.interact_size,
-        style.spacing.slider_width,
-        style.spacing.text_edit_width,
-        style.spacing.icon_width,
-        style.spacing.icon_spacing,
-        style.spacing.tooltip_width,
-        style.spacing.indent_ends_with_horizontal_line,
-        style.spacing.combo_height,
-        style.spacing.scroll_bar_width,
+    de!(hash_map, style, spacing, item_spacing);
+    de!(hash_map, style, spacing, window_margin);
+    de!(hash_map, style, spacing, button_padding);
+    de!(hash_map, style, spacing, indent);
+    de!(hash_map, style, spacing, interact_size);
+    de!(hash_map, style, spacing, slider_width);
+    de!(hash_map, style, spacing, text_edit_width);
+    de!(hash_map, style, spacing, icon_width);
+    de!(hash_map, style, spacing, icon_spacing);
+    de!(hash_map, style, spacing, tooltip_width);
+    de!(hash_map, style, spacing, indent_ends_with_horizontal_line);
+    de!(hash_map, style, spacing, combo_height);
+    de!(hash_map, style, spacing, scroll_bar_width);
 
-        style.interaction.resize_grab_radius_side,
-        style.interaction.resize_grab_radius_corner,
-        style.interaction.show_tooltips_only_when_still,
-        style.visuals.dark_mode,
-        style.visuals.override_text_color,
-        style.visuals.widgets,
-        style.visuals.selection,
-        style.visuals.hyperlink_color,
-        style.visuals.faint_bg_color,
-        style.visuals.extreme_bg_color,
-        style.visuals.code_bg_color,
-        style.visuals.window_rounding,
-        style.visuals.window_shadow,
-        style.visuals.popup_shadow,
-        style.visuals.resize_corner_size,
-        style.visuals.text_cursor_width,
-        style.visuals.text_cursor_preview,
-        style.visuals.clip_rect_margin,
-        style.visuals.button_frame,
-        style.visuals.collapsing_header_frame
-    );
+    de!(hash_map, style, interaction, resize_grab_radius_side);
+    de!(hash_map, style, interaction, resize_grab_radius_corner);
+    de!(hash_map, style, interaction, show_tooltips_only_when_still);
+    de!(hash_map, style, visuals, dark_mode);
+    de!(hash_map, style, visuals, override_text_color);
+    de!(hash_map, style, visuals, widgets);
+    de!(hash_map, style, visuals, selection);
+    de!(hash_map, style, visuals, hyperlink_color);
+    de!(hash_map, style, visuals, faint_bg_color);
+    de!(hash_map, style, visuals, extreme_bg_color);
+    de!(hash_map, style, visuals, code_bg_color);
+    de!(hash_map, style, visuals, window_rounding);
+    de!(hash_map, style, visuals, window_shadow);
+    de!(hash_map, style, visuals, popup_shadow);
+    de!(hash_map, style, visuals, resize_corner_size);
+    de!(hash_map, style, visuals, text_cursor_width);
+    de!(hash_map, style, visuals, text_cursor_preview);
+    de!(hash_map, style, visuals, clip_rect_margin);
+    de!(hash_map, style, visuals, button_frame);
+    de!(hash_map, style, visuals, collapsing_header_frame);
+
     style
 }
 

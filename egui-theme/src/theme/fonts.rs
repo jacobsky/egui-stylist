@@ -15,7 +15,7 @@ fn remove_default_fonts<'a>(mut font_data: BTreeMap<String, FontData>) -> BTreeM
     }
     font_data
 }
-/// TODO: Comment this function
+/// Helper function for serializing the `egui::FontDefinitions`
 pub fn from_fonts(FontDefinitions { font_data, families }: FontDefinitions) -> HashMap<String, serde_json::Value> {
     let font_data = remove_default_fonts(font_data);
     let mut hash_map = HashMap::new();
@@ -46,7 +46,7 @@ pub fn from_fonts(FontDefinitions { font_data, families }: FontDefinitions) -> H
     hash_map
 }
 
-/// TODO: Comment this function
+/// Helper function for deserializing the `egui::FontDefinitions`
 pub fn to_fonts(hash_map: HashMap<String, serde_json::Value>) -> FontDefinitions {
     let mut fonts = FontDefinitions::default();
     
