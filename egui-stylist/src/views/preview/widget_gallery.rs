@@ -64,7 +64,8 @@ impl WidgetGallery {
     }
 
     // TODO: Add this back in
-    fn font_selector(ui: &mut egui::Ui) {            
+    fn font_selector(_ui: &mut egui::Ui) {
+           
         // let mut proportional_fonts = ui
         //     .ctx()
         //     .fonts()

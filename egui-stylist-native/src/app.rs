@@ -30,13 +30,34 @@ pub struct StylistApp {
 }
 
 impl StylistApp {
+
+    #[cfg(feature = "persistence")]
+    fn get_app_state(cc: &eframe::CreationContext<'_>) -> Self {
+        if let Some(storage) = cc.storage {
+            let raw_data = storage.get_string(eframe::APP_KEY).unwrap_or_default();
+            let state = ron::from_str(raw_data.as_str());
+            if let Ok(state) = state {
+                state
+            } else {
+                Self::default()
+            }
+        } else { Self::default() }
+    }
+    #[cfg(not(feature = "persistence"))]
+    fn get_app_state(_: &eframe::CreationContext<'_>) -> Self {
+        Self::default()
+    }
+
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // Customize egui here with cc.egui_ctx.set_fonts and cc.egui_ctx.set_visuals.
         // Restore app state using cc.storage (requires the "persistence" feature).
         // Use the cc.gl (a glow::Context) to create graphics shaders and buffers that you can use
         // for e.g. egui::PaintCallback.
-
-        let mut app = Self::default();
+        let mut app = Self::get_app_state(cc);
+        cc.egui_ctx.set_style(
+            Style::default()
+        );
+        // TODO: Allow persistence
         app.state.set_file_dialog_function(Box::new(open_file_dialog));
         
         app
@@ -122,8 +143,9 @@ impl eframe::App for StylistApp {
 
     /// Called by the frame work to save state before shutdown.
     #[cfg(feature = "persistence")]
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, eframe::APP_KEY, self);
+    fn save(&mut self, storage: &mut dyn Storage) {
+        app_state = ron::to_string(self);
+        storage.set_string(eframe::APP_KEY, app_state);
     }
 
     /// Called each time the UI needs repainting, which may be many times per second.

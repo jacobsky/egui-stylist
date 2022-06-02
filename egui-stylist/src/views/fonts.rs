@@ -2,7 +2,7 @@ use super::StylistFileDialog;
 use std::io::Read;
 use std::path::Path;
 
-use egui::{FontData, text};
+use egui::{FontData};
 
 // TODO: Reference egui-theme which is where this info should be stored.
 const DEFAULT_FONTS: [&str; 4] = [
@@ -277,7 +277,7 @@ pub fn fonts_view(
                 .num_columns(2usize)
                 .show(ui, |ui| {
                 let mut to_delete = Vec::new();
-                for (family) in font_definitions.families.keys() {
+                for family in font_definitions.families.keys() {
                     ui.label(family.to_string());
                     match family {
                         egui::FontFamily::Monospace | egui::FontFamily::Proportional => {}
@@ -356,7 +356,7 @@ pub fn fonts_view(
     CollapsingHeader::new("Font Priority")
         .default_open(true)
         .show(ui, |ui| {
-            let families = font_definitions.families.iter().map(| (k, v)| k.clone()).collect::<Vec<FontFamily>>();
+            let families = font_definitions.families.iter().map(| (k, _)| k.clone()).collect::<Vec<FontFamily>>();
             for family in families.iter() {
                 CollapsingHeader::new(format!("{family} Priority").as_str())
                     .default_open(true)

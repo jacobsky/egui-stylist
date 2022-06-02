@@ -1,4 +1,4 @@
-use egui::{Style, FontDefinitions};
+use egui::{Style, FontDefinitions, FontFamily};
 
 use crate::EguiTheme;
 
@@ -33,7 +33,10 @@ fn test_deserialize_custom() {
     assert!(fonts.font_data.contains_key("Nacelle-Regula"), "font data should contain Nacelle-Regula");
     assert!(fonts.font_data.contains_key("Nacelle-Regular"), "font data should contain Nacelle-Regular");
     
-
+    let associated_fonts = fonts.families.get(&FontFamily::Name("asdfasdf".into())).expect("this should have some fonts");
+    assert!(associated_fonts.contains(&"Ubuntu-Light".to_owned()), "needs to have `Ubuntu-Light`");
+    assert!(associated_fonts.contains(&"NotoEmoji-Regular".to_owned()), "needs to have `Nacelle-Regular`");
+    assert!(associated_fonts.contains(&"Nacelle-Regul".to_owned()), "needs to have `Nacelle-Regul`");
     // let default_style = Style::default();
     // let default_fonts = FontDefinitions::default();
 }

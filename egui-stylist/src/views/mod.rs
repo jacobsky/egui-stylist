@@ -48,9 +48,6 @@ pub struct StylistState {
     current_tab: StylerTab,
     show_stylist: bool,
     show_preview: bool,
-    // This is a workaround to fonts being set only in the UI
-    #[serde(skip)]
-    preview_fonts: bool,
     style: Style,
     font_definitions: FontDefinitions,
     #[serde(skip)]
@@ -69,7 +66,6 @@ impl StylistState {
             style: Style::default(),
             show_stylist: true,
             show_preview: true,
-            preview_fonts: false,
             font_definitions: FontDefinitions::default(),
             font_view_state: FontViewState::default(),
             text_style_view_state: TextStyleViewState::default(),
@@ -142,24 +138,6 @@ impl StylistState {
             }
             Checkbox::new(&mut self.show_stylist, "Show Stylist").ui(ui);
             Checkbox::new(&mut self.show_preview, "Show preview").ui(ui);
-            if Checkbox::new(&mut self.preview_fonts, "Preview Font Settings")
-                .ui(ui)
-                .clicked()
-            {
-                if self.preview_fonts {
-                    ui.ctx().set_fonts(self.font_definitions.clone());
-                    ui.ctx()
-                        .set_pixels_per_point(self.font_view_state.pixels_per_point);
-                } else {
-                    ui.ctx().set_fonts(FontDefinitions::default());
-                    ui.ctx().set_pixels_per_point(1f32);
-                }
-            }
-            if ui.button("Reset").clicked() {
-                ui.reset_style();
-                ui.ctx().set_pixels_per_point(1f32);
-                ui.ctx().set_fonts(FontDefinitions::default());
-            }
         });
     }
     /// Creates and displays the Stylist UI.
@@ -196,6 +174,7 @@ impl StylistState {
             CentralPanel::default().show_inside(ui, |ui| {
                 ScrollArea::vertical().show(ui, |ui| {
                     self.preview.set_style(self.style.clone());
+                    ui.ctx().set_fonts(self.font_definitions.clone());
                     self.preview.show(ui);
                 });
             });
