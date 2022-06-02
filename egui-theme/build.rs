@@ -1,29 +1,16 @@
-use cargo_lock::Lockfile;
 use std::fs::{create_dir, File};
 use std::io::{BufWriter, Write};
 
-const PACKAGE_NAME: &str = "egui-theme";
+use cargo_toml::Manifest;
 const EGUI_PKG_NAME: &str = "egui";
 
 // To help ensure that we can demonstrate compatibility and emit relevant errors when importing egui themes, we need to get some version information about of the lockfile this was built with.
 fn main() {
-    let lock_file_path = concat!(env!("CARGO_MANIFEST_DIR"), "/../Cargo.lock");
-    let lock_file = Lockfile::load(lock_file_path).unwrap_or_else(|_| {
-        panic!("cargo {lock_file_path} should exist before the build kicks off")
+    // TODO: Try to make this work with the cargo lock files as they will have more accurate depenency information.
+    let toml_path = concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.toml");
+    let manifest = Manifest::from_path(toml_path).unwrap_or_else(|_| {
+        panic!("cargo.toml path `{toml_path}` should exist before the build kicks off");
     });
-
-    let egui_theme_pkg = lock_file
-        .packages
-        .iter()
-        .find(|item| item.name.as_str() == PACKAGE_NAME)
-        .expect("this must exist");
-
-    let egui_pkg = egui_theme_pkg
-        .dependencies
-        .iter()
-        .find(|item| item.name.as_str() == EGUI_PKG_NAME)
-        .expect("this must also exist");
-
     // We need to ensure that the generated directory is created properly.
     let _ = create_dir("generated");
     let out_file = File::create("generated/meta.rs").expect("cannot create file");
@@ -35,9 +22,20 @@ fn main() {
     )
     .expect("failed to write");
 
-    let version = &egui_theme_pkg.version;
+    let version = manifest.package.unwrap().version;
+    // env!("CARGO_PKG_VERSION"); //&egui_theme_pkg.version;
     writeln!(writer, "const EGUI_THEME_VERSION: &str = \"{version}\";").expect("failed to write");
 
-    let version = &egui_pkg.version;
+    let version = manifest
+        .dependencies
+        .get(EGUI_PKG_NAME)
+        .expect("could not find egui")
+        .detail()
+        .unwrap()
+        .version
+        .clone()
+        .unwrap_or_default();
+
+    // env!("CARGO_PKG_DEP_EGUI_VERSION"); //&egui_pkg.version;
     writeln!(writer, "const EGUI_VERSION: &str = \"{version}\";").expect("failed to write");
 }

@@ -25,3 +25,4 @@ ron = "0.7"
 
 [build-dependencies]
 cargo-lock = "8"
+cargo_toml = "0"

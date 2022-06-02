@@ -1,6 +1,6 @@
 (
     egui_theme_version:"0.2.0",
-    egui_version:"0.18.1",
+    egui_version:"0.18",
     style:{
         "style.spacing.tooltip_width":600,
         "style.spacing.indent":18,
