@@ -9,10 +9,12 @@ mod fonts;
 mod preview;
 mod shape;
 mod spacing;
+mod text;
 
 use preview::Preview;
 
 use fonts::FontViewState;
+use text::TextStyleViewState;
 
 /// StylistFileDialogFunction is a function callback that allows the `StylistState` to open a native filedialog and get file paths for egui.
 pub type StylistFileDialogFunction =
@@ -28,8 +30,9 @@ pub enum StylistFileDialog {
 enum StylerTab {
     Colors,
     Fonts,
+    TextStyles,
     Spacing,
-    Shape,
+    Shape
 }
 /// This is the framework agnostic application state that can be easily embedded directly into any `egui` integration.
 ///
@@ -52,6 +55,8 @@ pub struct StylistState {
     font_definitions: FontDefinitions,
     #[serde(skip)]
     font_view_state: FontViewState,
+    #[serde(skip)]
+    text_style_view_state: TextStyleViewState,
     preview: Preview,
     #[serde(skip)]
     pub file_dialog_function: Option<StylistFileDialogFunction>,
@@ -67,6 +72,7 @@ impl StylistState {
             preview_fonts: false,
             font_definitions: FontDefinitions::default(),
             font_view_state: FontViewState::default(),
+            text_style_view_state: TextStyleViewState::default(),
             preview: Preview::new(Style::default()),
             file_dialog_function: None,
         }
@@ -109,6 +115,12 @@ impl StylistState {
             {
                 self.current_tab = StylerTab::Fonts;
             }
+            if ui.add(
+                SelectableLabel::new(self.current_tab == StylerTab::TextStyles, "TextStyles")
+            ).clicked() {
+                self.current_tab = StylerTab::TextStyles;
+            }
+
             if ui
                 .add(SelectableLabel::new(
                     self.current_tab == StylerTab::Spacing,
@@ -170,6 +182,10 @@ impl StylistState {
                                 &mut self.style,
                                 ui,
                             ),
+                            StylerTab::TextStyles => {
+                                let families = self.font_definitions.families.keys().cloned().collect::<Vec<_>>();
+                                text::text_styles_view(&mut self.text_style_view_state, &mut self.style, families, ui)
+                            },
                             StylerTab::Spacing => spacing::spacing_view(&mut self.style, ui),
                             StylerTab::Shape => shape::shape_view(&mut self.style, ui),
                         };

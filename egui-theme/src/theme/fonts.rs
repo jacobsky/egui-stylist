@@ -1,7 +1,5 @@
 use std::collections::{HashMap, BTreeMap};
-use egui::FontDefinitions;
-use egui::FontData;
-use egui::FontFamily;
+use egui::{FontDefinitions, FontData};
 
 const FONT_DATA_KEY: &str = "font_data";
 const FAMILIES_KEY: &str = "families";

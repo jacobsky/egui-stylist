@@ -2,7 +2,7 @@ use super::StylistFileDialog;
 use std::io::Read;
 use std::path::Path;
 
-use egui::FontData;
+use egui::{FontData, text};
 
 // TODO: Reference egui-theme which is where this info should be stored.
 const DEFAULT_FONTS: [&str; 4] = [
@@ -19,6 +19,7 @@ use egui::{
 pub struct FontViewState {
     to_add_name: String,
     to_add_path: String,
+    to_add_family: String,
     to_delete: Vec<String>,
     pub(crate) pixels_per_point: f32,
 }
@@ -28,6 +29,7 @@ impl Default for FontViewState {
         Self {
             to_add_name: "".to_owned(),
             to_add_path: "".to_owned(),
+            to_add_family: "".to_owned(),
             to_delete: Vec::new(),
             pixels_per_point: 1f32,
         }
@@ -114,7 +116,7 @@ fn add_font(
 
 fn font_priority(
     id: &str,
-    family: FontFamily,
+    family: &FontFamily,
     font_definitions: &mut FontDefinitions,
     ui: &mut Ui,
 ) {
@@ -123,37 +125,38 @@ fn font_priority(
         Down,
     }
     // TODO: Implement this
-    // let mut fonts = font_definitions
-    //     .fonts_for_family
-    //     .get(&family)
-    //     .expect("this should be valid")
-    //     .clone();
-    // let mut swap = None;
-    // Grid::new(id).num_columns(3).show(ui, |ui| {
-    //     for (i, name) in fonts.iter().enumerate() {
-    //         ui.label(name);
-    //         if i > 0 {
-    //             if ui.button("increase").clicked() {
-    //                 swap = Some((Direction::Up, i));
-    //             }
-    //         } else {
-    //             ui.label("");
-    //         }
-    //         if i < fonts.len() - 1 && ui.button("decrease").clicked() {
-    //             swap = Some((Direction::Down, i));
-    //         }
-    //         ui.end_row();
-    //     }
-    // });
-    // if let Some((dir, index)) = swap {
-    //     let new_index = match dir {
-    //         Direction::Up => index - 1,
-    //         Direction::Down => index + 1,
-    //     };
-    //     let font = fonts.remove(index);
-    //     fonts.insert(new_index, font);
-    //     font_definitions.fonts_for_family.insert(family, fonts);
-    // }
+    let mut fonts = font_definitions
+        .families
+        .get(family)
+        .expect("this should be valid")
+        .clone();
+    let mut swap = None;
+
+    Grid::new(id).num_columns(3).show(ui, |ui| {
+        for (i, name) in fonts.iter().enumerate() {
+            ui.label(name);
+            if i > 0 {
+                if ui.button("increase").clicked() {
+                    swap = Some((Direction::Up, i));
+                }
+            } else {
+                ui.label("");
+            }
+            if i < fonts.len() - 1 && ui.button("decrease").clicked() {
+                swap = Some((Direction::Down, i));
+            }
+            ui.end_row();
+        }
+    });
+    if let Some((dir, index)) = swap {
+        let new_index = match dir {
+            Direction::Up => index - 1,
+            Direction::Down => index + 1,
+        };
+        let font = fonts.remove(index);
+        fonts.insert(new_index, font);
+        font_definitions.families.insert(family.to_owned(), fonts);
+    }
 }
 
 /// Displays the current font definition from the core app widget and displays the ui to detect any addition changes.
@@ -255,7 +258,7 @@ pub fn fonts_view(
                     }
                     ui.end_row();
                 }
-
+                
                 for key in state.to_delete.iter() {
                     font_definitions.font_data.remove(key);
                 }
@@ -267,147 +270,106 @@ pub fn fonts_view(
         .show(ui, |ui| {
             add_font(state, font_definitions, file_dialog_callback, ui)
         });
-    //TODO: Add a grid that lists all the fonts and their relevant font families
-    CollapsingHeader::new("Font Families")
+    CollapsingHeader::new("Add/Remove Font Families")
         .default_open(true)
         .show(ui, |ui| {
-            Grid::new("_families").num_columns(3).show(ui, |ui| {
-                ui.label("Font");
-                ui.label("Proportional");
-                ui.label("Monospace");
+            Grid::new("_add_remove_families")
+                .num_columns(2usize)
+                .show(ui, |ui| {
+                let mut to_delete = Vec::new();
+                for (family) in font_definitions.families.keys() {
+                    ui.label(family.to_string());
+                    match family {
+                        egui::FontFamily::Monospace | egui::FontFamily::Proportional => {}
+                        _ => {
+                            let response = ui.button("delete");
+                            if response.clicked() {
+                                to_delete.push(family.to_owned());
+                            }
+                        }
+                    }
+                    ui.end_row();
+                }
+                ui.text_edit_singleline(&mut state.to_add_family);
+                let response = ui.button("add");
+                if response.clicked() {
+                    font_definitions.families.insert(FontFamily::Name(state.to_add_family.to_owned().into()), Vec::new());
+                    state.to_add_family = "".to_owned();
+                }
                 ui.end_row();
-                // for (name, _) in font_definitions.font_data.iter() {
-                //     ui.label(name);
-                //     let mut is_monospace = if let Some(fonts) = font_definitions
-                //         .fonts_for_family
-                //         .get(&egui::FontFamily::Monospace)
-                //     {
-                //         fonts.contains(name)
-                //     } else {
-                //         false
-                //     };
-                //     let mut is_proportional = if let Some(fonts) = font_definitions
-                //         .fonts_for_family
-                //         .get(&egui::FontFamily::Proportional)
-                //     {
-                //         fonts.contains(name)
-                //     } else {
-                //         false
-                //     };
 
-                //     let response = ui.add(Checkbox::new(&mut is_proportional, "Proportional"));
-                //     if response.clicked() {
-                //         let fonts = font_definitions
-                //             .fonts_for_family
-                //             .get_mut(&egui::FontFamily::Proportional)
-                //             .expect("this should exist");
-                //         if is_proportional {
-                //             fonts.push(name.to_owned());
-                //         } else if let Some(idx) = fonts.iter().position(|a| a.eq(name)) {
-                //             fonts.remove(idx);
-                //         }
-                //     }
-                //     let response = ui.add(Checkbox::new(&mut is_monospace, "Monospace"));
-                //     if response.clicked() {
-                //         let fonts = font_definitions
-                //             .fonts_for_family
-                //             .get_mut(&egui::FontFamily::Monospace)
-                //             .expect("this should exist");
-                //         if is_monospace {
-                //             fonts.push(name.to_owned());
-                //         } else if let Some(idx) = fonts.iter().position(|a| a.eq(name)) {
-                //             fonts.remove(idx);
-                //         }
-                //     }
+                for key in to_delete {
+                    font_definitions.families.remove(&key);
+                }
+            });
+        });
 
-                    // ui.end_row();
-                // }
+    CollapsingHeader::new("Edit Font Families")
+        .default_open(true)
+        .show(ui, |ui| {
+            let num_cols = font_definitions.families.keys().count();
+            Grid::new("_families").num_columns(num_cols + 1usize).show(ui, |ui| {
+                ui.label("Font");
+                let map = font_definitions
+                    .families
+                    .iter()
+                    .map(|(k, _)| {
+                        k.to_string()
+                    }).collect::<Vec<String>>();
+                for entry in map {
+                    ui.label(entry);
+                }
+                ui.end_row();
+                let families = font_definitions.families.clone();
+                for (name, _) in font_definitions.font_data.iter() {
+                    ui.label(name);
+                    for (family, names) in families.iter() {
+                        let mut is_set = names.contains(name);
+                        let response = ui.add(Checkbox::new(&mut is_set, ""));
+                        if response.clicked() {
+                            font_definitions
+                                .families
+                                .get_mut(family)
+                                .map(| strings | {
+                                    if is_set {
+                                        strings.push(name.to_owned());
+                                    } else {
+                                        if let Some(idx) = strings.iter()
+                                            .enumerate()
+                                            .find(|(_, string)| {
+                                                *string == name
+                                            })
+                                            .map(|(idx, _)| {
+                                                idx
+                                            }) {
+                                                strings.remove(idx);
+                                            }
+                                        }
+                                    }
+                                );
+                        }
+                    }
+                    ui.end_row();
+                }
             });
         });
     CollapsingHeader::new("Font Priority")
         .default_open(true)
         .show(ui, |ui| {
-            CollapsingHeader::new("Proportional Priority")
-                .default_open(true)
-                .show(ui, |ui| {
-                    font_priority(
-                        "_proportional_priority",
-                        FontFamily::Proportional,
-                        font_definitions,
-                        ui,
-                    );
-                    ui.end_row();
-                });
-            CollapsingHeader::new("Monospace Priority")
-                .default_open(true)
-                .show(ui, |ui| {
-                    font_priority(
-                        "_monospace_priority",
-                        FontFamily::Monospace,
-                        font_definitions,
-                        ui,
-                    );
-                    ui.end_row();
-                });
+            let families = font_definitions.families.iter().map(| (k, v)| k.clone()).collect::<Vec<FontFamily>>();
+            for family in families.iter() {
+                CollapsingHeader::new(format!("{family} Priority").as_str())
+                    .default_open(true)
+                    .show(ui, |ui| {
+                        let id = format!("_{family}_priority");
+                        font_priority(
+                            id.as_str(),
+                            family,
+                            font_definitions,
+                            ui,
+                        );
+                        ui.end_row();
+                    });
+            }
         });
-    //TODO: Add a grid for each font which has a text edit for each font type.s
-    CollapsingHeader::new("Text Style Sizes")
-        .default_open(true)
-        .show(ui, |ui| {
-            Grid::new("_families").num_columns(3).show(ui, |ui| {
-                adjust_text_style_for_families("Small", font_definitions, TextStyle::Small, ui);
-                ui.end_row();
-                adjust_text_style_for_families("Body", font_definitions, TextStyle::Body, ui);
-                ui.end_row();
-                adjust_text_style_for_families(
-                    "Heading",
-                    font_definitions,
-                    TextStyle::Heading,
-                    ui,
-                );
-                ui.end_row();
-                adjust_text_style_for_families(
-                    "Monospace",
-                    font_definitions,
-                    TextStyle::Monospace,
-                    ui,
-                );
-                ui.end_row();
-                adjust_text_style_for_families(
-                    "Button",
-                    font_definitions,
-                    TextStyle::Button,
-                    ui,
-                );
-                ui.end_row();
-            });
-        });
-}
-
-fn adjust_text_style_for_families(
-    label: &str,
-    font_definitions: &mut FontDefinitions,
-    text_style: TextStyle,
-    ui: &mut Ui,
-) {
-    // TODO: Implement the text style selection
-    // let (mut text_family, mut text_size) = font_definitions
-    //     .family_and_size
-    //     .get(&text_style)
-    //     .map_or((FontFamily::Proportional, 12.0), |(f, s)| (*f, *s));
-    // ui.label(label);
-    // let dv_response = DragValue::new(&mut text_size).clamp_range(1i32..=100i32).ui(ui);
-
-    // let current_family = text_family;
-    // ComboBox::from_label(format!("Family for {}", label))
-    //     .selected_text(format!("{:?}", text_family))
-    //     .show_ui(ui, |ui| {
-    //         ui.selectable_value(&mut text_family, FontFamily::Proportional, "Proportional");
-    //         ui.selectable_value(&mut text_family, FontFamily::Monospace, "Monospace");
-    //     });
-    // if dv_response.changed() || current_family.ne(&text_family) {
-    //     font_definitions
-    //         .family_and_size
-    //         .insert(text_style, (text_family, text_size));
-    // }
 }

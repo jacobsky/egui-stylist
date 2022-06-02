@@ -135,20 +135,3 @@ pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
 
     style
 }
-
-
-// /// BEFORE:
-// fn try_parse_rounded_corner(value: JsonValue) -> Result<f32> {
-//     value.try_to_f32();
-// }
-
-// // AFTER:
-
-// fn try_parse_rounded_corner(value: JsonValue) -> Result<RoundedCorner> {
-//     // ...
-// }
-
-// fn try_parse_rounded_corner_fallback(value: JsonValue) -> Result<RoundedCorner> {
-//     let single = value.try_to_f32()?;
-//     RoundedCorner { top_left: single, top_right: single, ... }
-// }
