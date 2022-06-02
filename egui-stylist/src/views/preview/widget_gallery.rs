@@ -1,5 +1,5 @@
 //! This is modified from the widget gallery code available at the [egui repository](https://github.com/emilk/egui/blob/master/egui_demo_lib/src/apps/demo/widget_gallery.rs)
-use egui::{TextStyle, Widget, RichText, Label};
+use egui::{Label, RichText, TextStyle, Widget};
 
 #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 enum Enum {
@@ -65,7 +65,7 @@ impl WidgetGallery {
 
     // TODO: Add this back in
     fn font_selector(_ui: &mut egui::Ui) {
-           
+
         // let mut proportional_fonts = ui
         //     .ctx()
         //     .fonts()
@@ -140,9 +140,7 @@ impl WidgetGallery {
         ui.end_row();
         WidgetGallery::font_selector(ui);
         Label::new("Monospace Label").ui(ui);
-        Label::new(
-            RichText::new("This is using Monospace TextStyle").monospace()
-        ).ui(ui);
+        Label::new(RichText::new("This is using Monospace TextStyle").monospace()).ui(ui);
         ui.end_row();
 
         Label::new("Small Label").ui(ui);
@@ -150,7 +148,8 @@ impl WidgetGallery {
         ui.end_row();
 
         Label::new("Body Label").ui(ui);
-        Label::new(RichText::new("This is using the Body TextStyle").text_style(TextStyle::Body)).ui(ui);
+        Label::new(RichText::new("This is using the Body TextStyle").text_style(TextStyle::Body))
+            .ui(ui);
         ui.end_row();
 
         Label::new("Heading Label").ui(ui);
@@ -159,8 +158,9 @@ impl WidgetGallery {
 
         Label::new("Button Label").ui(ui);
         Label::new(
-            RichText::new("This is using the Button TextStyle").text_style(TextStyle::Button)
-        ).ui(ui);
+            RichText::new("This is using the Button TextStyle").text_style(TextStyle::Button),
+        )
+        .ui(ui);
         ui.end_row();
 
         ui.label("Hyperlink");
@@ -242,7 +242,10 @@ impl WidgetGallery {
 
         ui.label("ImageButton");
         if ui
-            .add(egui::ImageButton::new(egui::TextureId::Managed(0), [24.0, 16.0]))
+            .add(egui::ImageButton::new(
+                egui::TextureId::Managed(0),
+                [24.0, 16.0],
+            ))
             .on_hover_text("The egui font texture was the most convenient choice to show here.")
             .clicked()
         {
@@ -281,6 +284,7 @@ fn example_plot(ui: &mut egui::Ui) -> egui::Response {
     })));
     Plot::new("example_plot")
         .height(32.0)
-        .data_aspect(1.0).show(ui, |plot_ui| {plot_ui.line(line)})
+        .data_aspect(1.0)
+        .show(ui, |plot_ui| plot_ui.line(line))
         .response
 }

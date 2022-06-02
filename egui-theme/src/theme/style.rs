@@ -1,51 +1,49 @@
-use std::collections::HashMap;
 use egui::Style;
+use std::collections::HashMap;
 
 macro_rules! ser {
     ($collection:ident, $style:ident, $prop:ident) => {
         if let Ok(value) = serde_json::to_value($style.$prop.to_owned()) {
-            $collection.insert(stringify!($prop).to_owned(), value); 
+            $collection.insert(stringify!($prop).to_owned(), value);
         }
     };
     ($collection:ident, $style:ident, $prop:ident, $sub_prop:ident) => {
         if let Ok(value) = serde_json::to_value($style.$prop.$sub_prop.to_owned()) {
-            $collection.insert(stringify!($prop.$sub_prop).to_owned(), value); 
+            $collection.insert(stringify!($prop.$sub_prop).to_owned(), value);
         }
     };
 }
 
 macro_rules! de {
     ($collection:ident, $style:ident, $prop:ident) => {
-        $collection.get(&stringify!($prop).to_owned())
-            .map(|value| {
-                if let Ok(deserialized_value) = serde_json::from_value(value.to_owned()) {
-                    $style.$prop = deserialized_value;
-                }
+        $collection.get(&stringify!($prop).to_owned()).map(|value| {
+            if let Ok(deserialized_value) = serde_json::from_value(value.to_owned()) {
+                $style.$prop = deserialized_value;
             }
-        );
+        });
     };
     ($collection:ident, $style:ident, $prop:ident, $sub_prop:ident) => {
-        $collection.get(&stringify!($prop.$sub_prop).to_owned())
+        $collection
+            .get(&stringify!($prop.$sub_prop).to_owned())
             .map(|value| {
                 if let Ok(deserialized_value) = serde_json::from_value(value.to_owned()) {
                     $style.$prop.$sub_prop = deserialized_value;
                 }
-            }
-        );
+            });
     };
 }
 
 /// Helper function to serialize the `egui::Style`
 pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     let mut hash_map = HashMap::new();
-    
-    ser!(hash_map, style, override_text_style); 
-    ser!(hash_map, style, override_font_id); 
-    ser!(hash_map, style, text_styles); 
-    ser!(hash_map, style, wrap); 
 
-    ser!(hash_map, style, animation_time); 
-    ser!(hash_map, style, explanation_tooltips); 
+    ser!(hash_map, style, override_text_style);
+    ser!(hash_map, style, override_font_id);
+    ser!(hash_map, style, text_styles);
+    ser!(hash_map, style, wrap);
+
+    ser!(hash_map, style, animation_time);
+    ser!(hash_map, style, explanation_tooltips);
 
     ser!(hash_map, style, spacing, item_spacing);
     ser!(hash_map, style, spacing, window_margin);
@@ -81,22 +79,21 @@ pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     ser!(hash_map, style, visuals, clip_rect_margin);
     ser!(hash_map, style, visuals, button_frame);
     ser!(hash_map, style, visuals, collapsing_header_frame);
-    
+
     hash_map
 }
-
 
 /// Helper function to deserialize the `egui::Style`
 pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
     let mut style = Style::default();
- 
-    de!(hash_map, style, override_text_style); 
-    de!(hash_map, style, override_font_id); 
-    de!(hash_map, style, text_styles); 
-    de!(hash_map, style, wrap); 
 
-    de!(hash_map, style, animation_time); 
-    de!(hash_map, style, explanation_tooltips); 
+    de!(hash_map, style, override_text_style);
+    de!(hash_map, style, override_font_id);
+    de!(hash_map, style, text_styles);
+    de!(hash_map, style, wrap);
+
+    de!(hash_map, style, animation_time);
+    de!(hash_map, style, explanation_tooltips);
 
     de!(hash_map, style, spacing, item_spacing);
     de!(hash_map, style, spacing, window_margin);

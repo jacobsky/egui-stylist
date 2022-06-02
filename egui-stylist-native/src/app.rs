@@ -1,5 +1,5 @@
-use eframe::egui::Style;
 use eframe::egui;
+use eframe::egui::Style;
 use egui_stylist::{StylistFileDialog, StylistState};
 use std::fs::File;
 use std::io::Read;
@@ -30,7 +30,6 @@ pub struct StylistApp {
 }
 
 impl StylistApp {
-
     #[cfg(feature = "persistence")]
     fn get_app_state(cc: &eframe::CreationContext<'_>) -> Self {
         if let Some(storage) = cc.storage {
@@ -41,7 +40,9 @@ impl StylistApp {
             } else {
                 Self::default()
             }
-        } else { Self::default() }
+        } else {
+            Self::default()
+        }
     }
     #[cfg(not(feature = "persistence"))]
     fn get_app_state(_: &eframe::CreationContext<'_>) -> Self {
@@ -54,12 +55,11 @@ impl StylistApp {
         // Use the cc.gl (a glow::Context) to create graphics shaders and buffers that you can use
         // for e.g. egui::PaintCallback.
         let mut app = Self::get_app_state(cc);
-        cc.egui_ctx.set_style(
-            Style::default()
-        );
+        cc.egui_ctx.set_style(Style::default());
         // TODO: Allow persistence
-        app.state.set_file_dialog_function(Box::new(open_file_dialog));
-        
+        app.state
+            .set_file_dialog_function(Box::new(open_file_dialog));
+
         app
     }
 }

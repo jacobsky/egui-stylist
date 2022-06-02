@@ -2,7 +2,7 @@ use super::StylistFileDialog;
 use std::io::Read;
 use std::path::Path;
 
-use egui::{FontData};
+use egui::FontData;
 
 // TODO: Reference egui-theme which is where this info should be stored.
 const DEFAULT_FONTS: [&str; 4] = [
@@ -101,10 +101,7 @@ fn add_font(
                 if reader.read_to_end(&mut contents).is_ok() {
                     font_definitions
                         .font_data
-                        .insert(
-                            state.to_add_name.clone(), 
-                            FontData::from_owned(contents)
-                    );
+                        .insert(state.to_add_name.clone(), FontData::from_owned(contents));
                 }
                 // TODO: Give some sort of error popup or modal if this fails
             }
@@ -188,11 +185,7 @@ pub fn fonts_view(
                 ComboBox::from_id_source("_body_text_style")
                     .selected_text(format!("{:?}", &style.override_text_style))
                     .show_ui(ui, |ui| {
-                        ui.selectable_value(
-                            &mut style.override_text_style,
-                            None,
-                            "None"
-                        );
+                        ui.selectable_value(&mut style.override_text_style, None, "None");
                         ui.selectable_value(
                             &mut style.override_text_style,
                             Some(TextStyle::Heading),
@@ -200,11 +193,13 @@ pub fn fonts_view(
                         );
                         ui.selectable_value(
                             &mut style.override_text_style,
-                            Some(TextStyle::Body), "Body"
+                            Some(TextStyle::Body),
+                            "Body",
                         );
                         ui.selectable_value(
                             &mut style.override_text_style,
-                            Some(TextStyle::Small), "Small"
+                            Some(TextStyle::Small),
+                            "Small",
                         );
                         ui.selectable_value(
                             &mut style.override_text_style,
@@ -258,7 +253,7 @@ pub fn fonts_view(
                     }
                     ui.end_row();
                 }
-                
+
                 for key in state.to_delete.iter() {
                     font_definitions.font_data.remove(key);
                 }
@@ -276,95 +271,93 @@ pub fn fonts_view(
             Grid::new("_add_remove_families")
                 .num_columns(2usize)
                 .show(ui, |ui| {
-                let mut to_delete = Vec::new();
-                for family in font_definitions.families.keys() {
-                    ui.label(family.to_string());
-                    match family {
-                        egui::FontFamily::Monospace | egui::FontFamily::Proportional => {}
-                        _ => {
-                            let response = ui.button("delete");
-                            if response.clicked() {
-                                to_delete.push(family.to_owned());
+                    let mut to_delete = Vec::new();
+                    for family in font_definitions.families.keys() {
+                        ui.label(family.to_string());
+                        match family {
+                            egui::FontFamily::Monospace | egui::FontFamily::Proportional => {}
+                            _ => {
+                                let response = ui.button("delete");
+                                if response.clicked() {
+                                    to_delete.push(family.to_owned());
+                                }
                             }
                         }
+                        ui.end_row();
+                    }
+                    ui.text_edit_singleline(&mut state.to_add_family);
+                    let response = ui.button("add");
+                    if response.clicked() {
+                        font_definitions.families.insert(
+                            FontFamily::Name(state.to_add_family.to_owned().into()),
+                            Vec::new(),
+                        );
+                        state.to_add_family = "".to_owned();
                     }
                     ui.end_row();
-                }
-                ui.text_edit_singleline(&mut state.to_add_family);
-                let response = ui.button("add");
-                if response.clicked() {
-                    font_definitions.families.insert(FontFamily::Name(state.to_add_family.to_owned().into()), Vec::new());
-                    state.to_add_family = "".to_owned();
-                }
-                ui.end_row();
 
-                for key in to_delete {
-                    font_definitions.families.remove(&key);
-                }
-            });
+                    for key in to_delete {
+                        font_definitions.families.remove(&key);
+                    }
+                });
         });
 
     CollapsingHeader::new("Edit Font Families")
         .default_open(true)
         .show(ui, |ui| {
             let num_cols = font_definitions.families.keys().count();
-            Grid::new("_families").num_columns(num_cols + 1usize).show(ui, |ui| {
-                ui.label("Font");
-                let map = font_definitions
-                    .families
-                    .iter()
-                    .map(|(k, _)| {
-                        k.to_string()
-                    }).collect::<Vec<String>>();
-                for entry in map {
-                    ui.label(entry);
-                }
-                ui.end_row();
-                let families = font_definitions.families.clone();
-                for (name, _) in font_definitions.font_data.iter() {
-                    ui.label(name);
-                    for (family, names) in families.iter() {
-                        let mut is_set = names.contains(name);
-                        let response = ui.add(Checkbox::new(&mut is_set, ""));
-                        if response.clicked() {
-                            if let Some(strings) = 
-                            font_definitions
-                                .families
-                                .get_mut(family) {
+            Grid::new("_families")
+                .num_columns(num_cols + 1usize)
+                .show(ui, |ui| {
+                    ui.label("Font");
+                    let map = font_definitions
+                        .families
+                        .iter()
+                        .map(|(k, _)| k.to_string())
+                        .collect::<Vec<String>>();
+                    for entry in map {
+                        ui.label(entry);
+                    }
+                    ui.end_row();
+                    let families = font_definitions.families.clone();
+                    for (name, _) in font_definitions.font_data.iter() {
+                        ui.label(name);
+                        for (family, names) in families.iter() {
+                            let mut is_set = names.contains(name);
+                            let response = ui.add(Checkbox::new(&mut is_set, ""));
+                            if response.clicked() {
+                                if let Some(strings) = font_definitions.families.get_mut(family) {
                                     if is_set {
                                         strings.push(name.to_owned());
-                                    } else if let Some(idx) = strings.iter()
+                                    } else if let Some(idx) = strings
+                                        .iter()
                                         .enumerate()
-                                        .find(|(_, string)| {
-                                            *string == name
-                                        })
-                                        .map(|(idx, _)| {
-                                            idx
-                                        }) {
-                                            strings.remove(idx);
-                                        }
+                                        .find(|(_, string)| *string == name)
+                                        .map(|(idx, _)| idx)
+                                    {
+                                        strings.remove(idx);
                                     }
                                 }
+                            }
                         }
-                    ui.end_row();
-                }
-            });
+                        ui.end_row();
+                    }
+                });
         });
     CollapsingHeader::new("Font Priority")
         .default_open(true)
         .show(ui, |ui| {
-            let families = font_definitions.families.iter().map(| (k, _)| k.clone()).collect::<Vec<FontFamily>>();
+            let families = font_definitions
+                .families
+                .iter()
+                .map(|(k, _)| k.clone())
+                .collect::<Vec<FontFamily>>();
             for family in families.iter() {
                 CollapsingHeader::new(format!("{family} Priority").as_str())
                     .default_open(true)
                     .show(ui, |ui| {
                         let id = format!("_{family}_priority");
-                        font_priority(
-                            id.as_str(),
-                            family,
-                            font_definitions,
-                            ui,
-                        );
+                        font_priority(id.as_str(), family, font_definitions, ui);
                         ui.end_row();
                     });
             }

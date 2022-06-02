@@ -58,7 +58,6 @@ pub fn shape_view(style: &mut Style, ui: &mut Ui) {
         Checkbox::new(&mut style.interaction.show_tooltips_only_when_still, "").ui(ui);
         ui.end_row();
 
-
         ui.label("Window Rounding - NW");
         DragValue::new(&mut style.visuals.window_rounding.nw)
             .clamp_range(0.0f32..=50.0f32)

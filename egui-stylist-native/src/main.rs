@@ -12,5 +12,9 @@ fn main() {
     let app_name = "egui-stylist";
     let native_options = eframe::NativeOptions::default();
 
-    eframe::run_native(app_name, native_options, Box::new(|cc| Box::new(StylistApp::new(cc))));
+    eframe::run_native(
+        app_name,
+        native_options,
+        Box::new(|cc| Box::new(StylistApp::new(cc))),
+    );
 }

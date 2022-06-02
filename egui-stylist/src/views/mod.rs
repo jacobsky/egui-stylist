@@ -32,7 +32,7 @@ enum StylerTab {
     Fonts,
     TextStyles,
     Spacing,
-    Shape
+    Shape,
 }
 /// This is the framework agnostic application state that can be easily embedded directly into any `egui` integration.
 ///
@@ -85,10 +85,7 @@ impl StylistState {
     ) -> Option<PathBuf> {
         self.file_dialog_function
             .as_ref()
-            .and_then(
-                |f|
-                f(kind, filter)
-            )
+            .and_then(|f| f(kind, filter))
     }
 
     fn tab_menu_ui(&mut self, ui: &mut Ui) {
@@ -113,9 +110,13 @@ impl StylistState {
             {
                 self.current_tab = StylerTab::Fonts;
             }
-            if ui.add(
-                SelectableLabel::new(self.current_tab == StylerTab::TextStyles, "TextStyles")
-            ).clicked() {
+            if ui
+                .add(SelectableLabel::new(
+                    self.current_tab == StylerTab::TextStyles,
+                    "TextStyles",
+                ))
+                .clicked()
+            {
                 self.current_tab = StylerTab::TextStyles;
             }
 
@@ -163,9 +164,19 @@ impl StylistState {
                                 ui,
                             ),
                             StylerTab::TextStyles => {
-                                let families = self.font_definitions.families.keys().cloned().collect::<Vec<_>>();
-                                text::text_styles_view(&mut self.text_style_view_state, &mut self.style, families, ui)
-                            },
+                                let families = self
+                                    .font_definitions
+                                    .families
+                                    .keys()
+                                    .cloned()
+                                    .collect::<Vec<_>>();
+                                text::text_styles_view(
+                                    &mut self.text_style_view_state,
+                                    &mut self.style,
+                                    families,
+                                    ui,
+                                )
+                            }
                             StylerTab::Spacing => spacing::spacing_view(&mut self.style, ui),
                             StylerTab::Shape => shape::shape_view(&mut self.style, ui),
                         };
