@@ -143,9 +143,12 @@ impl eframe::App for StylistApp {
 
     /// Called by the frame work to save state before shutdown.
     #[cfg(feature = "persistence")]
-    fn save(&mut self, storage: &mut dyn Storage) {
-        app_state = ron::to_string(self);
-        storage.set_string(eframe::APP_KEY, app_state);
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        if let Ok(app_state) = ron::to_string(self) {
+            storage.set_string(eframe::APP_KEY, app_state);
+        } else {
+            // TODO: Do some logging here.
+        }
     }
 
     /// Called each time the UI needs repainting, which may be many times per second.

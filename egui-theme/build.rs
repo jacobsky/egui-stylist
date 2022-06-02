@@ -7,8 +7,10 @@ const EGUI_PKG_NAME: &str = "egui";
 
 // To help ensure that we can demonstrate compatibility and emit relevant errors when importing egui themes, we need to get some version information about of the lockfile this was built with.
 fn main() {
-    let lock_file = Lockfile::load("../Cargo.lock")
-        .expect("cargo lock file should exist before the build kicks off");
+    let lock_file_path = concat!(env!("CARGO_MANIFEST_DIR"), "/../Cargo.lock");
+    let lock_file = Lockfile::load(lock_file_path).unwrap_or_else(|_| {
+        panic!("cargo {lock_file_path} should exist before the build kicks off")
+    });
 
     let egui_theme_pkg = lock_file
         .packages
