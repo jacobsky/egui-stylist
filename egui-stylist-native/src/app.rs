@@ -224,9 +224,8 @@ impl eframe::App for StylistApp {
                         let theme = self.state.export_theme();
                         // The font_data is only used for serialization
                         let (style, font_definitions) = theme.extract();
-                        // let style: Style = style.into();
                         ctx.set_style(style);
-                        ctx.set_fonts(font_definitions.into());
+                        ctx.set_fonts(font_definitions);
                     }
                     if ui.button("Clear settings").clicked() {
                         self.state = StylistState::default();

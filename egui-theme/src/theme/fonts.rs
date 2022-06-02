@@ -7,7 +7,7 @@ const FAMILIES_KEY: &str = "families";
 
 /// Removes the default font data when serializing the fonts.
 /// This is done to trim down the size of the data saved into the theme.
-fn remove_default_fonts<'a>(mut font_data: BTreeMap<String, FontData>) -> BTreeMap<String, FontData> {
+fn remove_default_fonts(mut font_data: BTreeMap<String, FontData>) -> BTreeMap<String, FontData> {
     for font_name in crate::DEFAULT_FONTS {
         font_data.remove(&font_name.to_owned());
     }
@@ -48,15 +48,15 @@ pub fn from_fonts(FontDefinitions { font_data, families }: FontDefinitions) -> H
 pub fn to_fonts(hash_map: HashMap<String, serde_json::Value>) -> FontDefinitions {
     let mut fonts = FontDefinitions::default();
     
-    hash_map.get(&FONT_DATA_KEY.to_owned()).map(|value| {
+    if let Some(value) = hash_map.get(&FONT_DATA_KEY.to_owned()) {
         if let Ok(font_data) = serde_json::from_value::<BTreeMap<String, FontData>>(value.to_owned()) {
             for (k, v) in font_data.iter() {
                 let _ = fonts.font_data.insert(k.to_owned(), v.to_owned());
             }
         }
-    });
+    }
 
-    hash_map.get(&FAMILIES_KEY.to_owned()).map(|value| {
+    if let Some(value) = hash_map.get(&FAMILIES_KEY.to_owned()) {
         // Workaround due to FontFamily not properly serializing to "String" when attempting to serialize the BTreeMap<FontFamily, Vec<String>>
         if let Ok(families) = serde_json::from_value::<Vec<(String, Vec<String>)>>(value.to_owned()) {
             // println!("{:?}", families);
@@ -67,7 +67,7 @@ pub fn to_fonts(hash_map: HashMap<String, serde_json::Value>) -> FontDefinitions
                 );
             }
         };
-    });
+    }
         
     fonts
 }

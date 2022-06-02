@@ -85,8 +85,10 @@ impl StylistState {
     ) -> Option<PathBuf> {
         self.file_dialog_function
             .as_ref()
-            .map(|f| f(kind, filter))
-            .flatten()
+            .and_then(
+                |f|
+                f(kind, filter)
+            )
     }
 
     fn tab_menu_ui(&mut self, ui: &mut Ui) {
@@ -185,7 +187,7 @@ impl StylistState {
     }
     pub fn import_theme(&mut self, theme: EguiTheme) {
         let (style, font_definitions) = theme.extract();
-        self.style = style.into();
-        self.font_definitions = font_definitions.into();
+        self.style = style;
+        self.font_definitions = font_definitions;
     }
 }

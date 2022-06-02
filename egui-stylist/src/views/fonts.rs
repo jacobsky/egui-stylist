@@ -221,7 +221,7 @@ pub fn fonts_view(
 
                 ui.label("Override Text Style");
                 let mut override_text_style = style.override_text_style.is_some();
-                let response = Checkbox::new(&mut &mut override_text_style, "").ui(ui);
+                let response = Checkbox::new(&mut override_text_style, "").ui(ui);
                 if response.clicked() {
                     if override_text_style && style.override_text_style.is_none() {
                         style.override_text_style = Some(TextStyle::Body);
@@ -327,28 +327,25 @@ pub fn fonts_view(
                         let mut is_set = names.contains(name);
                         let response = ui.add(Checkbox::new(&mut is_set, ""));
                         if response.clicked() {
+                            if let Some(strings) = 
                             font_definitions
                                 .families
-                                .get_mut(family)
-                                .map(| strings | {
+                                .get_mut(family) {
                                     if is_set {
                                         strings.push(name.to_owned());
-                                    } else {
-                                        if let Some(idx) = strings.iter()
-                                            .enumerate()
-                                            .find(|(_, string)| {
-                                                *string == name
-                                            })
-                                            .map(|(idx, _)| {
-                                                idx
-                                            }) {
-                                                strings.remove(idx);
-                                            }
+                                    } else if let Some(idx) = strings.iter()
+                                        .enumerate()
+                                        .find(|(_, string)| {
+                                            *string == name
+                                        })
+                                        .map(|(idx, _)| {
+                                            idx
+                                        }) {
+                                            strings.remove(idx);
                                         }
                                     }
-                                );
+                                }
                         }
-                    }
                     ui.end_row();
                 }
             });
