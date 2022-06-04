@@ -1,15 +1,19 @@
 use egui::Style;
 use std::collections::HashMap;
 
+const TEXT_STYLES_KEY: &str = "text_styles";
+
 macro_rules! ser {
     ($collection:ident, $style:ident, $prop:ident) => {
-        if let Ok(value) = serde_json::to_value($style.$prop.to_owned()) {
-            $collection.insert(stringify!($prop).to_owned(), value);
-        }
+        match serde_json::to_value($style.$prop.to_owned()) {
+            Ok(value) => { let _ = $collection.insert(stringify!($prop).to_owned(), value); },
+            Err(error) => { println!("{}", error); },
+        } 
     };
     ($collection:ident, $style:ident, $prop:ident, $sub_prop:ident) => {
-        if let Ok(value) = serde_json::to_value($style.$prop.$sub_prop.to_owned()) {
-            $collection.insert(stringify!($prop.$sub_prop).to_owned(), value);
+        match serde_json::to_value($style.$prop.$sub_prop.to_owned())  {
+            Ok(value) => { let _ = $collection.insert(stringify!($prop.$sub_prop).to_owned(), value); },
+            Err(error) => { println!("{}", error); },
         }
     };
 }
@@ -37,10 +41,21 @@ macro_rules! de {
 pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     let mut hash_map = HashMap::new();
 
+    {
+        let text_styles = style.text_styles.iter()
+            .map(|(k, v)| (k.to_owned(), v.to_owned() ))
+            .collect::<Vec<_>>();
+        if let Ok(value) = serde_json::to_value(text_styles) {
+            hash_map.insert(TEXT_STYLES_KEY.to_owned(), value);
+        }
+    }
+    // Text Styles are a special case due to being a map that must serialize to a string.
+    // ser!(hash_map, style, text_styles);
+    
     ser!(hash_map, style, override_text_style);
     ser!(hash_map, style, override_font_id);
-    ser!(hash_map, style, text_styles);
     ser!(hash_map, style, wrap);
+
 
     ser!(hash_map, style, animation_time);
     ser!(hash_map, style, explanation_tooltips);
@@ -86,10 +101,19 @@ pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
 /// Helper function to deserialize the `egui::Style`
 pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
     let mut style = Style::default();
+    // Special case due to json requiring String keys
+    {
+        hash_map.get(TEXT_STYLES_KEY).map(|value| {
+            if let Ok(values) = serde_json::from_value::<Vec<(egui::TextStyle, egui::FontId)>>(value.to_owned()) {
+                for (key, value) in values {
+                    style.text_styles.insert(key, value);
+                }
+            }
+        });
+    }
 
     de!(hash_map, style, override_text_style);
     de!(hash_map, style, override_font_id);
-    de!(hash_map, style, text_styles);
     de!(hash_map, style, wrap);
 
     de!(hash_map, style, animation_time);
@@ -112,6 +136,7 @@ pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
     de!(hash_map, style, interaction, resize_grab_radius_side);
     de!(hash_map, style, interaction, resize_grab_radius_corner);
     de!(hash_map, style, interaction, show_tooltips_only_when_still);
+
     de!(hash_map, style, visuals, dark_mode);
     de!(hash_map, style, visuals, override_text_color);
     de!(hash_map, style, visuals, widgets);

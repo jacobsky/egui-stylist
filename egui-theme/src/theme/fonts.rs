@@ -27,7 +27,6 @@ pub fn from_fonts(
         serde_json::to_value(font_data).expect("serialization error occurred"),
     );
 
-    println!("{:?}", &families);
     // Workaround due to FontFamily not properly serializing to "String" when attempting to serialize the BTreeMap<FontFamily, Vec<String>>
     let families = {
         families
@@ -45,7 +44,6 @@ pub fn from_fonts(
         serde_json::to_value(families).expect("serialization error occurred"),
     );
 
-    println!("{:?}", hash_map.get(FAMILIES_KEY));
     hash_map
 }
 
