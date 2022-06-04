@@ -20,9 +20,11 @@ pub struct EguiTheme {
     /// Version of egui that the theme was created with
     pub(crate) egui_version: String,
     /// The serialized font information for all desired configuration settings.
-    pub(crate) style: HashMap<String, ThemeValue>,
+    pub style: HashMap<String, ThemeValue>,
     /// Used for
-    pub(crate) fonts: HashMap<String, ThemeValue>,
+    pub fonts: HashMap<String, ThemeValue>,
+    /// Can be used to set custom properties.
+    pub custom_props: HashMap<String, ThemeValue>,
 }
 
 impl EguiTheme {
@@ -37,19 +39,34 @@ impl EguiTheme {
             egui_version: crate::EGUI_VERSION.to_owned(),
             style,
             fonts,
+            custom_props: HashMap::new(),
         }
     }
 
+    pub fn egui_theme_version() -> String {
+        crate::EGUI_THEME_VERSION.to_owned()
+    }
+
+    pub fn egui_version() -> String {
+        crate::EGUI_VERSION.to_owned()
+    }
+
     /// Consumes the deserialized theme destructively to product the style/font
-    pub fn extract(self) -> (Style, FontDefinitions) {
-        let EguiTheme { style, fonts, .. } = self;
+    pub fn extract(self) -> (Style, FontDefinitions, HashMap<String, ThemeValue>) {
+        let EguiTheme {
+            style,
+            fonts,
+            custom_props,
+            ..
+        } = self;
         let style = style::to_style(style);
         let fonts = fonts::to_fonts(fonts);
-        (style, fonts)
+
+        (style, fonts, custom_props)
     }
 
     pub fn load_into_context(self, context: &mut egui::Context) {
-        let (style, fonts) = self.extract();
+        let (style, fonts, ..) = self.extract();
         context.set_style(style);
         context.set_fonts(fonts);
     }

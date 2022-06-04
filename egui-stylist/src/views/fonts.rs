@@ -5,7 +5,7 @@ use std::path::Path;
 use egui::FontData;
 
 // TODO: Reference egui-theme which is where this info should be stored.
-const DEFAULT_FONTS: [&str; 4] = [
+pub const DEFAULT_FONTS: [&str; 4] = [
     "Hack",
     "Ubuntu-Light",
     "NotoEmoji-Regular",

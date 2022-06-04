@@ -16,6 +16,8 @@ use preview::Preview;
 use fonts::FontViewState;
 use text::TextStyleViewState;
 
+pub use fonts::DEFAULT_FONTS;
+
 /// StylistFileDialogFunction is a function callback that allows the `StylistState` to open a native filedialog and get file paths for egui.
 pub type StylistFileDialogFunction =
     Box<dyn Fn(StylistFileDialog, Option<(&str, &[&str])>) -> Option<PathBuf>>;
@@ -77,6 +79,12 @@ impl StylistState {
     pub fn set_file_dialog_function(&mut self, f: StylistFileDialogFunction) {
         self.file_dialog_function = Some(f);
     }
+
+    pub fn with_font_definitions(mut self, font_definitions: FontDefinitions) -> Self {
+        self.font_definitions = font_definitions;
+        self
+    }
+
     /// Calls the file_dialog function and returns a path if it was found.
     pub fn file_dialog(
         &self,
@@ -197,7 +205,7 @@ impl StylistState {
         EguiTheme::new(self.style.clone(), self.font_definitions.clone())
     }
     pub fn import_theme(&mut self, theme: EguiTheme) {
-        let (style, font_definitions) = theme.extract();
+        let (style, font_definitions, ..) = theme.extract();
         self.style = style;
         self.font_definitions = font_definitions;
     }
