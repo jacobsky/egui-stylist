@@ -7,7 +7,7 @@ pub use theme::EguiTheme;
 #[cfg(test)]
 mod tests;
 
-include!("../generated/meta.rs");
+include!(concat!(env!("OUT_DIR"), "/generated/meta.rs"));
 
 const DEFAULT_FONTS: [&str; 4] = [
     "Hack",

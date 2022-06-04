@@ -12,8 +12,11 @@ fn main() {
         panic!("cargo.toml path `{toml_path}` should exist before the build kicks off");
     });
     // We need to ensure that the generated directory is created properly.
-    let _ = create_dir("generated");
-    let out_file = File::create("generated/meta.rs").expect("cannot create file");
+    let directory = std::env::var("OUT_DIR").expect("OUT_DIR must exist");
+    let directory = directory + "/generated";
+    let _ = create_dir(directory.as_str());
+    let filepath = directory + "/meta.rs";
+    let out_file = File::create(filepath).expect("cannot create file");
 
     let mut writer = BufWriter::new(out_file);
     writeln!(
