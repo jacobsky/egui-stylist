@@ -5,7 +5,7 @@ use std::collections::HashMap;
 mod fonts;
 mod style;
 
-type ThemeValue = serde_json::Value;
+pub type ThemeValue = serde_json::Value;
 
 /// The EguiTheme is the serializable contents of the relevant font information. This is intended to only be used when reading and writing the `Style` and `FontDefinition` information to/from disk.
 ///
@@ -16,13 +16,13 @@ type ThemeValue = serde_json::Value;
 #[derive(Serialize, Deserialize)]
 pub struct EguiTheme {
     /// Version of egui_theme that the theme was created with
-    pub(crate) egui_theme_version: String,
+    pub  egui_theme_version: String,
     /// Version of egui that the theme was created with
-    pub(crate) egui_version: String,
+    pub  egui_version: String,
     /// The serialized font information for all desired configuration settings.
-    pub(crate) style: HashMap<String, ThemeValue>,
+    pub style: HashMap<String, ThemeValue>,
     /// Used for
-    pub(crate) fonts: HashMap<String, ThemeValue>,
+    pub fonts: HashMap<String, ThemeValue>,
 }
 
 impl EguiTheme {
