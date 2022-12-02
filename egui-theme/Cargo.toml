@@ -7,22 +7,15 @@ description="A standalone serializable theme container for use with Egui."
 license="MIT"
 readme = "README.md"
 
-
 [lib]
 name = "egui_theme"
 path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-# This requires egui to work
 egui = { version = "0.18", features = ["serde"]}
-# This is used for serialization
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [dev-dependencies]
 ron = "0.7"
-
-[build-dependencies]
-cargo-lock = "8"
-cargo_toml = "0"

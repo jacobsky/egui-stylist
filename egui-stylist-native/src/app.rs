@@ -226,7 +226,7 @@ impl eframe::App for StylistApp {
                     if ui.button("Set current theme as app theme").clicked() {
                         let theme = self.state.export_theme();
                         // The font_data is only used for serialization
-                        let (style, font_definitions) = theme.extract();
+                        let (style, font_definitions, _) = theme.extract();
                         ctx.set_style(style);
                         ctx.set_fonts(font_definitions);
                     }

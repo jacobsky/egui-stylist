@@ -7,11 +7,12 @@ pub use theme::EguiTheme;
 #[cfg(test)]
 mod tests;
 
-include!(concat!(env!("OUT_DIR"), "/generated/meta.rs"));
-
 const DEFAULT_FONTS: [&str; 4] = [
     "Hack",
     "Ubuntu-Light",
     "NotoEmoji-Regular",
     "emoji-icon-font",
 ];
+
+const EGUI_VERSION: &str = "0.18";
+const EGUI_THEME_VERSION: &str = "0.2.0";
