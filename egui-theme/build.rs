@@ -25,7 +25,13 @@ fn main() {
     )
     .expect("failed to write");
 
-    let version = manifest.package.unwrap().version;
+    let version = manifest
+        .package
+        .map(|v| {
+            v.version.get().map_or_else(|_| "".to_string(), |v| v.to_owned())
+        })
+        .unwrap();
+
     // env!("CARGO_PKG_VERSION"); //&egui_theme_pkg.version;
     writeln!(writer, "const EGUI_THEME_VERSION: &str = \"{version}\";").expect("failed to write");
 
