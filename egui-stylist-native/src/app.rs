@@ -219,7 +219,7 @@ impl eframe::App for StylistApp {
                         }
                     }
                     if ui.button("Quit").clicked() {
-                        frame.quit();
+                        frame.close();
                     }
                 });
                 egui::menu::menu_button(ui, "Options", |ui| {

@@ -1,5 +1,5 @@
 //! This is modified from the widget gallery code available at the [egui repository](https://github.com/emilk/egui/blob/master/egui_demo_lib/src/apps/demo/widget_gallery.rs)
-use egui::{Label, RichText, TextStyle, Widget};
+use egui::{Label, RichText, TextStyle, Widget, plot::{PlotPoints}};
 
 #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 enum Enum {
@@ -275,13 +275,14 @@ impl WidgetGallery {
 }
 
 fn example_plot(ui: &mut egui::Ui) -> egui::Response {
-    use egui::plot::{Line, Plot, Value, Values};
+    use egui::plot::{Line, Plot};
     let n = 128;
-    let line = Line::new(Values::from_values_iter((0..=n).map(|i| {
+    let points: PlotPoints = (0..=n).map(|i| {
         use std::f64::consts::TAU;
         let x = egui::remap(i as f64, 0.0..=(n as f64), -TAU..=TAU);
-        Value::new(x, x.sin())
-    })));
+        [x, x.sin()]
+    }).collect();
+    let line = Line::new(points);
     Plot::new("example_plot")
         .height(32.0)
         .data_aspect(1.0)
