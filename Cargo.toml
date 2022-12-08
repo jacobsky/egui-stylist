@@ -8,6 +8,4 @@ opt-level = 3
 opt-level = 2 # fast and small wasm
 
 [patch.crates-io]
-egui = { git = "https://github.com/EmbarkStudios/egui/", default-features = false, rev = "1c683a5a9767eea97ad7448be39f9f6bc3893be8" }
-egui-winit  = { git = "https://github.com/EmbarkStudios/egui/", default-features = false, rev = "1c683a5a9767eea97ad7448be39f9f6bc3893be8" }
-emath = { git = "https://github.com/EmbarkStudios/egui/", default-features = false, rev = "1c683a5a9767eea97ad7448be39f9f6bc3893be8" }
+
