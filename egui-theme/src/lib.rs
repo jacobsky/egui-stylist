@@ -14,5 +14,5 @@ const DEFAULT_FONTS: [&str; 4] = [
     "emoji-icon-font",
 ];
 
-const EGUI_VERSION: &str = "0.18";
+const EGUI_VERSION: &str = "0.20";
 const EGUI_THEME_VERSION: &str = "0.2.0";

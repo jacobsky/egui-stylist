@@ -42,24 +42,41 @@ pub fn colors_view(style: &mut Style, ui: &mut Ui) {
                         ("Hyperlink Color", &mut style.visuals.hyperlink_color)
                     );
                 });
-            CollapsingHeader::new("Window and non-interactive widget Settings")
+            CollapsingHeader::new("Window Settings")
                 .default_open(true)
                 .show(ui, |ui| {
                     color_grid!(
                         ui,
                         (
                             "Window Fill",
-                            &mut style.visuals.widgets.noninteractive.bg_fill
-                        ),
-                        (
-                            "Window Text",
-                            &mut style.visuals.widgets.noninteractive.fg_stroke.color
+                            &mut style.visuals.window_fill
                         ),
                         (
                             "Window Outline",
-                            &mut style.visuals.widgets.noninteractive.bg_stroke.color
+                            &mut style.visuals.window_stroke.color
                         ),
-                        ("Window Shadow", &mut style.visuals.window_shadow.color)
+                        ("Window Shadow", &mut style.visuals.window_shadow.color),
+                        ("Panel Fill", &mut style.visuals.panel_fill)
+                    );
+                });
+
+                CollapsingHeader::new("Non Interactive Widget Settings")
+                .default_open(true)
+                .show(ui, |ui| {
+                    color_grid!(
+                        ui,
+                        (
+                            "Fill",
+                            &mut style.visuals.widgets.noninteractive.bg_fill
+                        ),
+                        (
+                            "Text",
+                            &mut style.visuals.widgets.noninteractive.fg_stroke.color
+                        ),
+                        (
+                            "Outline",
+                            &mut style.visuals.widgets.noninteractive.bg_stroke.color
+                        )                     
                     );
                 });
 
