@@ -24,7 +24,7 @@ path = "src/main.rs"
 egui-theme = { path = "../egui-theme" }
 egui-stylist = { path = "../egui-stylist"}
 # Gives us egui, epi and web+native backends
-eframe = "0.20"
+eframe = { version = "0.20", default-features = false, features = ["glow"] }
 # Required for font serialization
 base64 = "0.13.0" 
 rfd = "0.8"
