@@ -13,7 +13,7 @@ path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-egui = { version = "0.20", default-features = false, features = ["serde"]}
+egui = { version = "0.21", default-features = false, features = ["serde"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
