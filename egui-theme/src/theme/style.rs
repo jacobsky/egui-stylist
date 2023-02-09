@@ -87,6 +87,8 @@ pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     ser!(hash_map, style, interaction, resize_grab_radius_side);
     ser!(hash_map, style, interaction, resize_grab_radius_corner);
     ser!(hash_map, style, interaction, show_tooltips_only_when_still);
+
+    ser!(hash_map, style, visuals, dark_mode);
     ser!(hash_map, style, visuals, dark_mode);
     ser!(hash_map, style, visuals, override_text_color);
     ser!(hash_map, style, visuals, widgets);
@@ -104,6 +106,14 @@ pub fn from_style(style: Style) -> HashMap<String, super::ThemeValue> {
     ser!(hash_map, style, visuals, clip_rect_margin);
     ser!(hash_map, style, visuals, button_frame);
     ser!(hash_map, style, visuals, collapsing_header_frame);
+
+    // egui 0.20
+    ser!(hash_map, style, visuals, panel_fill);
+    ser!(hash_map, style, visuals, window_fill);
+    ser!(hash_map, style, visuals, window_stroke);
+    ser!(hash_map, style, visuals, warn_fg_color);
+    ser!(hash_map, style, visuals, error_fg_color);
+    ser!(hash_map, style, spacing, menu_margin);
 
     hash_map
 }
@@ -166,6 +176,14 @@ pub fn to_style(hash_map: HashMap<String, super::ThemeValue>) -> Style {
     de!(hash_map, style, visuals, clip_rect_margin);
     de!(hash_map, style, visuals, button_frame);
     de!(hash_map, style, visuals, collapsing_header_frame);
+
+    // egui 0.20
+    de!(hash_map, style, visuals, panel_fill);
+    de!(hash_map, style, visuals, window_fill);
+    de!(hash_map, style, visuals, window_stroke);
+    de!(hash_map, style, visuals, warn_fg_color);
+    de!(hash_map, style, visuals, error_fg_color);
+    de!(hash_map, style, spacing, menu_margin);
 
     style
 }
